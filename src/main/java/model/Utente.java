@@ -15,6 +15,10 @@ public class Utente {
         this.email=email;
         this.nome=nome;
         this.cognome=cognome;
-        //ricchione
+    }
+
+    public boolean login(String username, String password){
+        if (this.username.equals(username) && this.password.equals(password)) {return true;}
+        else return false;
     }
 }

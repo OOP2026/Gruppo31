@@ -3,12 +3,12 @@ package model;
 import java.util.Date;
 
 public class Richiesta_Tirocinio {
-    private StatoRichiesta stato;
-    private Date data;
+    protected StatoRichiesta stato;
+    protected Date data;
 
-    private Studente studente;
-    private Docente docente;
-    private Tirocinio tirocinio;
+    public Studente studente;
+    public Docente docente;
+    public Tirocinio tirocinio;
 
     public Richiesta_Tirocinio(Date data, Studente studente, Docente docente, Tirocinio tirocinio) {
         this.stato = StatoRichiesta.In_Attesa; // Stato di default

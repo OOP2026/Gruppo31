@@ -1,15 +1,18 @@
 package model;
 
 public class Prenotazione_Laurea {
-    private StatoLaurea stato;
+    public Seduta_di_laurea seduta;
+    public StatoLaurea stato;
 
     // Associazioni
-    private Studente studente;
-    private Tesi tesi;
+    public Studente studente;
+    public Tesi tesi;
 
-    public Prenotazione_Laurea(Studente studente, Tesi tesi) {
+    public Prenotazione_Laurea(Studente studente, Tesi tesi, Seduta_di_laurea seduta) {
         this.stato = StatoLaurea.In_Attesa;
         this.studente = studente;
         this.tesi = tesi;
+        this.seduta=seduta;
     }
+
 }
