@@ -15,5 +15,6 @@ public class Utente {
         this.email=email;
         this.nome=nome;
         this.cognome=cognome;
+        //forza napoli
     }
 }
