@@ -3,11 +3,11 @@ package model;
 import java.util.Date;
 
 public class Coordinatore extends Docente{
-    public String n_corso_laurea;
+    protected String nCorsoLaurea;
 
     public Coordinatore(String username, String password, String email, String nome, String cognome, String ssn, String corso){
         super(username, password, email, nome, cognome, ssn);
-        this.n_corso_laurea=corso;
+        this.nCorsoLaurea =corso;
     }
 
     // Il metodo inserisciSeduta serve a creare una nuova seduta di laurea
