@@ -11,7 +11,7 @@ public class Richiesta_Tirocinio {
     public Tirocinio tirocinio;
 
     public Richiesta_Tirocinio(Date data, Studente studente, Docente docente, Tirocinio tirocinio) {
-        this.stato = StatoRichiesta.In_Attesa; // Stato di default
+        this.stato = StatoRichiesta.IN_ATTESA; // Stato di default
         this.data = data;
         this.studente = studente;
         this.docente = docente;

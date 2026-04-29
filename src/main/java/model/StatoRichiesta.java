@@ -1,7 +1,6 @@
 package model;
 
 public enum StatoRichiesta {
-    In_Attesa,
-    Accettato,
-    Rifiutato
-}
+    IN_ATTESA,
+    ACCETTATO,
+    RIFIUTATO}

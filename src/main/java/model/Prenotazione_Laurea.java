@@ -9,7 +9,7 @@ public class Prenotazione_Laurea {
     public Tesi tesi;
 
     public Prenotazione_Laurea(Studente studente, Tesi tesi, Seduta_di_laurea seduta) {
-        this.stato = StatoLaurea.In_Attesa;
+        this.stato = StatoLaurea.IN_ATTESA;
         this.studente = studente;
         this.tesi = tesi;
         this.seduta=seduta;

@@ -16,10 +16,10 @@ public class Docente extends Utente{
     // valutaRichiesta serve ad approvare o rifiutare una richiesta di tirocinio di uno studente
     public void valutaRichiesta(Richiesta_Tirocinio richiesta, boolean approvata) {
         if (approvata) {
-            richiesta.stato = StatoRichiesta.Accettato;
+            richiesta.stato = StatoRichiesta.ACCETTATO;
             System.out.println("Richiesta di tirocinio approvata.");
         } else {
-            richiesta.stato = StatoRichiesta.Rifiutato;
+            richiesta.stato = StatoRichiesta.RIFIUTATO;
             System.out.println("Richiesta di tirocinio rifiutata.");
         }
     }
@@ -27,10 +27,10 @@ public class Docente extends Utente{
     // valutaTesi serve ad approvare o rifiutare una tesi di uno studente
     public void valutaTesi(Tesi tesi, boolean approvata) {
         if (approvata) {
-            tesi.stato = StatoTesi.Accettato;
+            tesi.stato = StatoTesi.ACCETTATO;
             System.out.println("Tesi approvata. Lo studente può procedere.");
         } else {
-            tesi.stato = StatoTesi.Rifiutato;
+            tesi.stato = StatoTesi.RIFIUTATO;
             System.out.println("Tesi rifiutata. Lo studente deve caricare una nuova versione.");
         }
     }
