@@ -1,8 +1,14 @@
 package controller;
 
+/**
+ * The type Controller.
+ */
 public class Controller {
 
-	public Controller() {
+    /**
+     * Instantiates a new Controller.
+     */
+    public Controller() {
 	}
 	
 }

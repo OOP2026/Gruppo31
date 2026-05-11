@@ -2,7 +2,15 @@ package model;
 
 import java.util.Date;
 
+/**
+ * The type Main.
+ */
 public class Main {
+	/**
+	 * The entry point of application.
+	 *
+	 * @param args the input arguments
+	 */
 	public static void main(String[] args) {
 		Docente d = new Docente("prof_mario", "ciao000", "mariorossi@professore.it", "Mario", "Rossi", "SSN000");
 		Studente s = new Studente("lolloz", "ciao123", "lorenzo@studente.it", "Lorenzo", "Mollo", "DE1086");

@@ -1,19 +1,49 @@
 package model;
 
+/**
+ * The type Docente.
+ */
 public class Docente extends Utente{
+    /**
+     * The Ssn.
+     */
     public String ssn;
 
+    /**
+     * Instantiates a new Docente.
+     *
+     * @param username the username
+     * @param password the password
+     * @param email    the email
+     * @param nome     the nome
+     * @param cognome  the cognome
+     * @param ssn      the ssn
+     */
     public Docente(String username, String password, String email, String nome, String cognome, String ssn){
         super(username, password, email, nome, cognome);
         this.ssn=ssn;
     }
-    // aggiungiTirocinio aggiunge un nuovo tirocinio tra i disponibili
+
+    /**
+     * Aggiungi tirocinio tirocinio.
+     *
+     * @param id        the id
+     * @param argomento the argomento
+     * @return the tirocinio
+     */
+// aggiungiTirocinio aggiunge un nuovo tirocinio tra i disponibili
     public Tirocinio aggiungiTirocinio(int id, String argomento) {
         System.out.println("Nuovo tirocinio proposto: " + argomento);
         return new Tirocinio(id, argomento);
     }
 
-    // valutaRichiesta serve ad approvare o rifiutare una richiesta di tirocinio di uno studente
+    /**
+     * Valuta richiesta.
+     *
+     * @param richiesta the richiesta
+     * @param approvata the approvata
+     */
+// valutaRichiesta serve ad approvare o rifiutare una richiesta di tirocinio di uno studente
     public void valutaRichiesta(Richiesta_Tirocinio richiesta, boolean approvata) {
         if (approvata) {
             richiesta.stato = StatoRichiesta.ACCETTATO;
@@ -24,7 +54,13 @@ public class Docente extends Utente{
         }
     }
 
-    // valutaTesi serve ad approvare o rifiutare una tesi di uno studente
+    /**
+     * Valuta tesi.
+     *
+     * @param tesi      the tesi
+     * @param approvata the approvata
+     */
+// valutaTesi serve ad approvare o rifiutare una tesi di uno studente
     public void valutaTesi(Tesi tesi, boolean approvata) {
         if (approvata) {
             tesi.stato = StatoTesi.ACCETTATO;
