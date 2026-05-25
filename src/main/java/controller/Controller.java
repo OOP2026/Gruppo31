@@ -5,7 +5,6 @@ import java.util.Date;
 
 public class Controller {
 
-    // Il controller si ricorda chi ha effettuato l'accesso
     private Utente utenteLoggato;
 
     public Controller() {
@@ -14,10 +13,7 @@ public class Controller {
     // ==========================================================
     // LOGIN
     // ==========================================================
-
     public boolean effettuaLogin(String username, String password) {
-        // Dato che non abbiamo il database, creiamo degli utenti "fittizi"
-
         if(username.equals("studente") && password.equals("123")) {
             utenteLoggato = new Studente(username, password, "stud@unina.it", "Mario", "Rossi", "N46001");
             return true;
@@ -38,13 +34,9 @@ public class Controller {
     // ==========================================================
     // AZIONI DELLO STUDENTE
     // ==========================================================
-
     public void studenteRichiediTirocinio(Docente relatore, Tirocinio tirocinio) {
-        // Controlliamo che l'utente loggato sia davvero uno studente
         if (utenteLoggato instanceof Studente) {
             Studente s = (Studente) utenteLoggato;
-
-            // Chiamiamo il metodo del model
             Richiesta_Tirocinio rt = s.richiediTirocinio(relatore, tirocinio, new Date());
         }
     }
@@ -52,16 +44,20 @@ public class Controller {
     public void studenteCaricaTesi(String titolo, String percorsoFile) {
         if (utenteLoggato instanceof Studente) {
             Studente s = (Studente) utenteLoggato;
-
-            // Chiamiamo il metodo del model
             Tesi t = s.caricaTesi(titolo, percorsoFile);
+        }
+    }
+
+    public void studentePrenotaSeduta(Tesi tesi, Seduta_di_laurea seduta) {
+        if (utenteLoggato instanceof Studente) {
+            Studente s = (Studente) utenteLoggato;
+            Prenotazione_Laurea pl = s.prenotaSedutaLaurea(s, tesi, seduta);
         }
     }
 
     // ==========================================================
     // AZIONI DEL DOCENTE
     // ==========================================================
-
     public void docenteAggiungiTirocinio(int id, String argomento) {
         if (utenteLoggato instanceof Docente) {
             Docente d = (Docente) utenteLoggato;
@@ -86,11 +82,17 @@ public class Controller {
     // ==========================================================
     // AZIONI DEL COORDINATORE
     // ==========================================================
-
     public void coordinatoreInserisciSeduta(Date data, String ora, String luogo, String codice) {
         if (utenteLoggato instanceof Coordinatore) {
             Coordinatore c = (Coordinatore) utenteLoggato;
             Seduta_di_laurea seduta = c.inserisciSeduta(data, ora, luogo, codice);
+        }
+    }
+
+    public void coordinatoreAggiungiDocenteACommissione(Docente d, Seduta_di_laurea seduta) {
+        if (utenteLoggato instanceof Coordinatore) {
+            Coordinatore c = (Coordinatore) utenteLoggato;
+            c.aggiungiDocenteACommissione(d, seduta);
         }
     }
 }
