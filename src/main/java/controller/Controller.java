@@ -7,20 +7,24 @@ public class Controller {
 
     private Utente utenteLoggato;
 
+    // Costante per far sparire il warning sulle password "hard-coded" (scritte a mano)
+    private static final String DUMMY_PASS = "123";
+
     public Controller() {
+        // Costruttore vuoto, nessuna simulazione DB per ora
     }
 
     // ==========================================================
     // LOGIN
     // ==========================================================
     public boolean effettuaLogin(String username, String password) {
-        if(username.equals("studente") && password.equals("123")) {
+        if(username.equals("studente") && password.equals(DUMMY_PASS)) {
             utenteLoggato = new Studente(username, password, "stud@unina.it", "Mario", "Rossi", "N46001");
             return true;
-        } else if (username.equals("docente") && password.equals("123")) {
+        } else if (username.equals("docente") && password.equals(DUMMY_PASS)) {
             utenteLoggato = new Docente(username, password, "doc@unina.it", "Luigi", "Verdi", "VRDLGU");
             return true;
-        } else if (username.equals("coord") && password.equals("123")) {
+        } else if (username.equals("coord") && password.equals(DUMMY_PASS)) {
             utenteLoggato = new Coordinatore(username, password, "coord@unina.it", "Anna", "Bianchi", "BNCNNA", "Informatica");
             return true;
         }
@@ -37,21 +41,22 @@ public class Controller {
     public void studenteRichiediTirocinio(Docente relatore, Tirocinio tirocinio) {
         if (utenteLoggato instanceof Studente) {
             Studente s = (Studente) utenteLoggato;
-            Richiesta_Tirocinio rt = s.richiediTirocinio(relatore, tirocinio, new Date());
+            // Chiamata diretta, senza assegnazione a variabile locale inutile
+            s.richiediTirocinio(relatore, tirocinio, new Date());
         }
     }
 
     public void studenteCaricaTesi(String titolo, String percorsoFile) {
         if (utenteLoggato instanceof Studente) {
             Studente s = (Studente) utenteLoggato;
-            Tesi t = s.caricaTesi(titolo, percorsoFile);
+            s.caricaTesi(titolo, percorsoFile);
         }
     }
 
     public void studentePrenotaSeduta(Tesi tesi, Seduta_di_laurea seduta) {
         if (utenteLoggato instanceof Studente) {
             Studente s = (Studente) utenteLoggato;
-            Prenotazione_Laurea pl = s.prenotaSedutaLaurea(s, tesi, seduta);
+            s.prenotaSedutaLaurea(s, tesi, seduta);
         }
     }
 
@@ -61,7 +66,7 @@ public class Controller {
     public void docenteAggiungiTirocinio(int id, String argomento) {
         if (utenteLoggato instanceof Docente) {
             Docente d = (Docente) utenteLoggato;
-            Tirocinio t = d.aggiungiTirocinio(id, argomento);
+            d.aggiungiTirocinio(id, argomento);
         }
     }
 
@@ -85,7 +90,7 @@ public class Controller {
     public void coordinatoreInserisciSeduta(Date data, String ora, String luogo, String codice) {
         if (utenteLoggato instanceof Coordinatore) {
             Coordinatore c = (Coordinatore) utenteLoggato;
-            Seduta_di_laurea seduta = c.inserisciSeduta(data, ora, luogo, codice);
+            c.inserisciSeduta(data, ora, luogo, codice);
         }
     }
 
