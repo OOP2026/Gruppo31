@@ -1,7 +1,4 @@
 package model;
-
-import java.util.ArrayList;
-
 /**
  * The type Utente.
  */
@@ -51,8 +48,7 @@ public class Utente {
      * @param password the password
      * @return the boolean
      */
-    public boolean login(String username, String password){
-        if (this.username.equals(username) && this.password.equals(password)) {return true;}
-        else return false;
+    public boolean login(String username, String password) {
+        return this.username.equals(username) && this.password.equals(password);
     }
 }

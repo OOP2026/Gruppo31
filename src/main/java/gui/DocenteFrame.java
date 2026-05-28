@@ -40,7 +40,7 @@ public class DocenteFrame extends JFrame {
         btnApprovaRichiesta.addActionListener(e -> {
             Studente mockStudente = new Studente("mario99", "123", "mario@stud.it", "Mario", "Rossi", "M001");
             Tirocinio t = new Tirocinio(1, "Studio Algoritmi");
-            Richiesta_Tirocinio richiesta = new Richiesta_Tirocinio(new Date(), mockStudente, (Docente)controller.getUtenteLoggato(), t);
+            RichiestaTirocinio richiesta = new RichiestaTirocinio(new Date(), mockStudente, (Docente)controller.getUtenteLoggato(), t);
 
             controller.docenteValutaRichiesta(richiesta, true); // true = Approva
             JOptionPane.showMessageDialog(DocenteFrame.this, "Richiesta dello studente approvata!");

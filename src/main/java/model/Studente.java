@@ -32,9 +32,9 @@ public class Studente extends Utente{
      * @return the richiesta tirocinio
      */
 // richiediTirocinio serve a richiedere la partecipazione ad un tirocinio
-    public Richiesta_Tirocinio richiediTirocinio(Docente relatore, Tirocinio tirocinio, Date dataRichiesta){
+    public RichiestaTirocinio richiediTirocinio(Docente relatore, Tirocinio tirocinio, Date dataRichiesta){
         System.out.println("Creazione richiesta di tirocinio per: " + tirocinio.argomento);
-        return new Richiesta_Tirocinio(dataRichiesta, this, relatore, tirocinio);
+        return new RichiestaTirocinio(dataRichiesta, this, relatore, tirocinio);
     }
 
     /**
@@ -59,8 +59,13 @@ public class Studente extends Utente{
      * @return the prenotazione laurea
      */
 // prenotaSedutaLaurea serve a prenotare una seduta di laurea
-    public Prenotazione_Laurea prenotaSedutaLaurea(Studente studente, Tesi tesi, Seduta_di_laurea seduta) {
-        System.out.println("Prenotazione alla seduta del " + seduta.data + " effettuata.");
-        return new Prenotazione_Laurea(studente, tesi, seduta);
+    public PrenotazioneLaurea prenotaSedutaLaurea(Studente studente, Tesi tesi, SedutaDiLaurea seduta) {
+        System.out.println("Prenotazione alla seduta del " + seduta.getData() + " effettuata.");
+        return new PrenotazioneLaurea(studente, tesi, seduta);
     }
+
+    public String getMatricola() {
+        return matricola;
+    }
+
 }

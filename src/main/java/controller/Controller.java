@@ -53,7 +53,7 @@ public class Controller {
         }
     }
 
-    public void studentePrenotaSeduta(Tesi tesi, Seduta_di_laurea seduta) {
+    public void studentePrenotaSeduta(Tesi tesi, SedutaDiLaurea seduta) {
         if (utenteLoggato instanceof Studente) {
             Studente s = (Studente) utenteLoggato;
             s.prenotaSedutaLaurea(s, tesi, seduta);
@@ -70,7 +70,7 @@ public class Controller {
         }
     }
 
-    public void docenteValutaRichiesta(Richiesta_Tirocinio richiesta, boolean approva) {
+    public void docenteValutaRichiesta(RichiestaTirocinio richiesta, boolean approva) {
         if (utenteLoggato instanceof Docente) {
             Docente d = (Docente) utenteLoggato;
             d.valutaRichiesta(richiesta, approva);
@@ -94,7 +94,7 @@ public class Controller {
         }
     }
 
-    public void coordinatoreAggiungiDocenteACommissione(Docente d, Seduta_di_laurea seduta) {
+    public void coordinatoreAggiungiDocenteACommissione(Docente d, SedutaDiLaurea seduta) {
         if (utenteLoggato instanceof Coordinatore) {
             Coordinatore c = (Coordinatore) utenteLoggato;
             c.aggiungiDocenteACommissione(d, seduta);

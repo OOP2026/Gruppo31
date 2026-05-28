@@ -38,9 +38,9 @@ public class Coordinatore extends Docente{
      * @param codice the codice
      * @return the seduta di laurea
      */
-    public Seduta_di_laurea inserisciSeduta(Date data, String ora, String luogo, String codice) {
+    public SedutaDiLaurea inserisciSeduta(Date data, String ora, String luogo, String codice) {
         System.out.println("Nuova seduta creata il " + data + " in " + luogo);
-        return new Seduta_di_laurea(data, ora, luogo, codice);
+        return new SedutaDiLaurea(data, ora, luogo, codice);
     }
 
     /**
@@ -50,8 +50,8 @@ public class Coordinatore extends Docente{
      * @param seduta  the seduta
      */
 // AggiungiDocenteACommissione serve ad aggiungere uno specifico docente ad una seduta specifica
-    public void aggiungiDocenteACommissione(Docente docente, Seduta_di_laurea seduta) {
+    public void aggiungiDocenteACommissione(Docente docente, SedutaDiLaurea seduta) {
         seduta.aggiungiMembroCommissione(docente);
-        System.out.println("Docente " + docente.cognome + " aggiunto alla commissione in data" + seduta.data);
+        System.out.println("Docente " + docente.cognome + " aggiunto alla commissione in data" + seduta.getData());
     }
 }

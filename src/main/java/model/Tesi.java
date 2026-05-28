@@ -4,22 +4,10 @@ package model;
  * The type Tesi.
  */
 public class Tesi {
-    /**
-     * The Titolo.
-     */
-    public String titolo;
-    /**
-     * The Percorso file.
-     */
-    public String percorsoFile;
-    /**
-     * The Stato.
-     */
-    public StatoTesi stato;
-    /**
-     * The Studente.
-     */
-    public Studente studente;
+    private String titolo;
+    private String percorsoFile;
+    private StatoTesi stato;
+    private Studente studente;
 
     /**
      * Instantiates a new Tesi.
@@ -31,6 +19,38 @@ public class Tesi {
     public Tesi(String titolo, String percorsoFile, Studente studente) {
         this.titolo = titolo;
         this.percorsoFile = percorsoFile;
-        this.studente=studente;
+        this.studente = studente;
+    }
+
+    public String getTitolo() {
+        return titolo;
+    }
+
+    public void setTitolo(String titolo) {
+        this.titolo = titolo;
+    }
+
+    public String getPercorsoFile() {
+        return percorsoFile;
+    }
+
+    public void setPercorsoFile(String percorsoFile) {
+        this.percorsoFile = percorsoFile;
+    }
+
+    public StatoTesi getStato() {
+        return stato;
+    }
+
+    public void setStato(StatoTesi stato) {
+        this.stato = stato;
+    }
+
+    public Studente getStudente() {
+        return studente;
+    }
+
+    public void setStudente(Studente studente) {
+        this.studente = studente;
     }
 }
