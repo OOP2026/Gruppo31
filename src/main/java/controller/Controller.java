@@ -7,7 +7,7 @@ public class Controller {
 
     private Utente utenteLoggato;
 
-    // Costante per far sparire il warning sulle password "hard-coded" (scritte a mano)
+    // Costante per simulare la password
     private static final String DUMMY_PASS = "123";
 
     public Controller() {
@@ -17,6 +17,8 @@ public class Controller {
     // ==========================================================
     // LOGIN
     // ==========================================================
+
+    @SuppressWarnings("java:S2068") // Sopprime l'avviso di Sonar sulle password hard-coded altrimenti da sempre problemi anche se è simulato
     public boolean effettuaLogin(String username, String password) {
         if(username.equals("studente") && password.equals(DUMMY_PASS)) {
             utenteLoggato = new Studente(username, password, "stud@unina.it", "Mario", "Rossi", "N46001");
