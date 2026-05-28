@@ -1,7 +1,4 @@
 package model;
-
-import java.util.Date;
-
 /**
  * The type Docente.
  */
