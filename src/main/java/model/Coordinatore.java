@@ -52,6 +52,8 @@ public class Coordinatore extends Docente{
 // AggiungiDocenteACommissione serve ad aggiungere uno specifico docente ad una seduta specifica
     public void aggiungiDocenteACommissione(Docente docente, SedutaDiLaurea seduta) {
         seduta.aggiungiMembroCommissione(docente);
-        System.out.println("Docente " + docente.cognome + " aggiunto alla commissione in data" + seduta.getData());
+
+        // MODIFICA: Ora la console stampa in modo chiaro l'SSN del docente e il codice della seduta
+        System.out.println("Docente con SSN: " + docente.getSsn() + " aggiunto alla commissione della seduta: " + seduta.getCodice());
     }
 }

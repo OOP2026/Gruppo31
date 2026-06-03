@@ -32,12 +32,13 @@ public class Studente extends Utente{
      * @return the richiesta tirocinio
      */
 // richiediTirocinio serve a richiedere la partecipazione ad un tirocinio
-    public RichiestaTirocinio richiediTirocinio(Docente relatore, Tirocinio tirocinio, Date dataRichiesta){
-        // MODIFICA: Ora stampa l'ID del tirocinio (es. 123) e non la stringa fissa
-        System.out.println("Creazione richiesta di tirocinio con ID: " + tirocinio.id);
+    public RichiestaTirocinio richiediTirocinio(Docente relatore, Tirocinio tirocinio, Date dataRichiesta) {
+
+        // MODIFICA: Ora la console stampa sia l'ID del tirocinio sia l'SSN del docente scelto (usando relatore.getSsn())
+        System.out.println("Creazione richiesta di tirocinio con ID: " + tirocinio.id + " inviata al docente con SSN: " + relatore.getSsn());
+
         return new RichiestaTirocinio(dataRichiesta, this, relatore, tirocinio);
     }
-
     /**
      * Carica tesi tesi.
      *

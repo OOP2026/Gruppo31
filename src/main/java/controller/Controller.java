@@ -96,27 +96,30 @@ public class Controller {
     public void docenteValutaRichiesta(String matricolaStudente, boolean approva) {
         if (utenteLoggato instanceof Docente) {
             Docente d = (Docente) utenteLoggato;
-
-            // Creiamo un mock della richiesta per usare il metodo del model.
             Studente mockStudente = new Studente("stud", "123", "stud@mail", "Nome", "Cognome", matricolaStudente);
-            RichiestaTirocinio richiesta = new RichiestaTirocinio(new Date(), mockStudente, d, new Tirocinio(1, "Mock"));
+            RichiestaTirocinio r = new RichiestaTirocinio(new Date(), mockStudente, d, new Tirocinio(1, "Mock"));
 
-            d.valutaRichiesta(richiesta, approva);
+            d.valutaRichiesta(r, approva);
+
+            // MODIFICA: Log dinamico per la console
+            String esito = approva ? "ACCETTATA" : "RIFIUTATA";
+            System.out.println("LOG: La richiesta di tirocinio per lo studente " + matricolaStudente + " è stata " + esito);
         }
     }
-
     // MODIFICA: Sostituito l'oggetto 'Tesi' con la matricola dello studente di cui si valuta la tesi.
     public void docenteValutaTesi(String matricolaStudente, boolean approva) {
         if (utenteLoggato instanceof Docente) {
             Docente d = (Docente) utenteLoggato;
-
             Studente mockStudente = new Studente("stud", "123", "stud@mail", "Nome", "Cognome", matricolaStudente);
-            Tesi tesi = new Tesi("Titolo Mock", "File Mock", mockStudente);
+            Tesi t = new Tesi("Titolo Mock", "File Mock", mockStudente);
 
-            d.valutaTesi(tesi, approva);
+            d.valutaTesi(t, approva);
+
+            // MODIFICA: Log dinamico per la console
+            String esito = approva ? "ACCETTATA" : "RIFIUTATA";
+            System.out.println("LOG: La tesi dello studente " + matricolaStudente + " è stata " + esito);
         }
     }
-
     // ==========================================================
     // AZIONI DEL COORDINATORE
     // ==========================================================
