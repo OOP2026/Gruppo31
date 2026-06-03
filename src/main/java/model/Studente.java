@@ -32,6 +32,7 @@ public class Studente extends Utente{
      * @return the richiesta tirocinio
      */
 // richiediTirocinio serve a richiedere la partecipazione ad un tirocinio
+    @SuppressWarnings("java:S106")
     public RichiestaTirocinio richiediTirocinio(Docente relatore, Tirocinio tirocinio, Date dataRichiesta) {
 
         // MODIFICA: Ora la console stampa sia l'ID del tirocinio sia l'SSN del docente scelto (usando relatore.getSsn())
@@ -47,6 +48,7 @@ public class Studente extends Utente{
      * @return the tesi
      */
 // caricaTesti serve a caricare una tesi che va valutata
+    @SuppressWarnings("java:S106")
     public Tesi caricaTesi(String titolo, String percorsoFile){
         System.out.println("Tesi caricata con successo:"+titolo);
         return new Tesi(titolo,percorsoFile,this);
@@ -61,6 +63,7 @@ public class Studente extends Utente{
      * @return the prenotazione laurea
      */
 // prenotaSedutaLaurea serve a prenotare una seduta di laurea
+    @SuppressWarnings("java:S106")
     public PrenotazioneLaurea prenotaSedutaLaurea(Studente studente, Tesi tesi, SedutaDiLaurea seduta) {
         // MODIFICA: Ora stampa il Codice della seduta (es. 123) e non la data di oggi
         System.out.println("Prenotazione alla seduta con codice " + seduta.getCodice() + " effettuata.");

@@ -38,6 +38,7 @@ public class Coordinatore extends Docente{
      * @param codice the codice
      * @return the seduta di laurea
      */
+    @SuppressWarnings("java:S106")
     public SedutaDiLaurea inserisciSeduta(Date data, String ora, String luogo, String codice) {
         System.out.println("Nuova seduta creata il " + data + " in " + luogo);
         return new SedutaDiLaurea(data, ora, luogo, codice);
@@ -50,6 +51,7 @@ public class Coordinatore extends Docente{
      * @param seduta  the seduta
      */
 // AggiungiDocenteACommissione serve ad aggiungere uno specifico docente ad una seduta specifica
+    @SuppressWarnings("java:S106")
     public void aggiungiDocenteACommissione(Docente docente, SedutaDiLaurea seduta) {
         seduta.aggiungiMembroCommissione(docente);
 

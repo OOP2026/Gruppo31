@@ -93,6 +93,7 @@ public class Controller {
 
     // MODIFICA: Invece dell'oggetto intero 'RichiestaTirocinio', riceviamo la matricola
     // dello studente a cui stiamo approvando la richiesta.
+    @SuppressWarnings("java:S106")
     public void docenteValutaRichiesta(String matricolaStudente, boolean approva) {
         if (utenteLoggato instanceof Docente) {
             Docente d = (Docente) utenteLoggato;
@@ -107,6 +108,7 @@ public class Controller {
         }
     }
     // MODIFICA: Sostituito l'oggetto 'Tesi' con la matricola dello studente di cui si valuta la tesi.
+    @SuppressWarnings("java:S106")
     public void docenteValutaTesi(String matricolaStudente, boolean approva) {
         if (utenteLoggato instanceof Docente) {
             Docente d = (Docente) utenteLoggato;
