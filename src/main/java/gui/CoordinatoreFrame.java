@@ -7,7 +7,6 @@ import java.util.Date;
 
 public class CoordinatoreFrame extends JFrame {
 
-    // Aggiunto "transient" per far felice SonarLint sulla serializzazione
     private transient Controller controller;
 
     private JPanel panel1;
@@ -23,11 +22,9 @@ public class CoordinatoreFrame extends JFrame {
         setTitle("Amministrazione - Coordinatore");
         setSize(450, 350);
 
-        // Sostituito JFrame con WindowConstants come suggerito
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Azione 1: Convertita in Lambda Expression (molto più pulita!)
         btnCreaSeduta.addActionListener(e -> {
             String ora = txtOraSeduta.getText();
             String luogo = txtLuogoSeduta.getText();
@@ -37,12 +34,13 @@ public class CoordinatoreFrame extends JFrame {
             JOptionPane.showMessageDialog(CoordinatoreFrame.this, "Seduta inserita nel calendario accademico!");
         });
 
-        // Azione 2: Convertita in Lambda Expression
         btnComponiCommissione.addActionListener(e -> {
-            Docente mockDocente = new Docente("prof_verdi", "123", "verdi@unina.it", "Luigi", "Verdi", "SSN123");
-            SedutaDiLaurea mockSeduta = new SedutaDiLaurea(new Date(), "09:00", "Aula Magna", "SED-ABC");
+            // MODIFICA: Rimosse le istanziazioni degli oggetti del Model 'Docente' e 'SedutaDiLaurea'.
+            // Ora passiamo al controller esclusivamente i dati identificativi sotto forma di Stringhe (SSN e Codice).
+            String ssnDocente = "SSN123";
+            String codiceSeduta = "SED-ABC";
 
-            controller.coordinatoreAggiungiDocenteACommissione(mockDocente, mockSeduta);
+            controller.coordinatoreAggiungiDocenteACommissione(ssnDocente, codiceSeduta);
             JOptionPane.showMessageDialog(CoordinatoreFrame.this, "Docente aggiunto ai membri della commissione!");
         });
     }

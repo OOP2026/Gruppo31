@@ -18,7 +18,7 @@ public class Controller {
     // LOGIN
     // ==========================================================
 
-    @SuppressWarnings("java:S2068") // Sopprime l'avviso di Sonar sulle password hard-coded altrimenti da sempre problemi anche se è simulato
+    @SuppressWarnings("java:S2068")
     public boolean effettuaLogin(String username, String password) {
         if(username.equals("studente") && password.equals(DUMMY_PASS)) {
             utenteLoggato = new Studente(username, password, "stud@unina.it", "Mario", "Rossi", "N46001");
@@ -40,14 +40,24 @@ public class Controller {
     // ==========================================================
     // AZIONI DELLO STUDENTE
     // ==========================================================
-    public void studenteRichiediTirocinio(Docente relatore, Tirocinio tirocinio) {
+
+    // MODIFICA: Sostituiti gli oggetti 'Docente' e 'Tirocinio' con i loro ID (String e int).
+    // In questo modo la GUI passa solo i dati testuali scelti dall'utente.
+    public void studenteRichiediTirocinio(String ssnRelatore, int idTirocinio) {
         if (utenteLoggato instanceof Studente) {
             Studente s = (Studente) utenteLoggato;
-            // Chiamata diretta, senza assegnazione a variabile locale inutile
+
+            // MODIFICA: Simuliamo la creazione degli oggetti basandoci sugli ID ricevuti.
+            // Quando ci sarà il DB, qui farai una INSERT tramite il DAO.
+            Docente relatore = new Docente("mock", "123", "mock@mail", "Mock", "Mock", ssnRelatore);
+            Tirocinio tirocinio = new Tirocinio(idTirocinio, "Argomento");
+
             s.richiediTirocinio(relatore, tirocinio, new Date());
         }
     }
 
+    // MODIFICA: Qui i parametri andavano già bene perché sono due Stringhe.
+    // Nessun cambio di parametri effettuato.
     public void studenteCaricaTesi(String titolo, String percorsoFile) {
         if (utenteLoggato instanceof Studente) {
             Studente s = (Studente) utenteLoggato;
@@ -55,9 +65,16 @@ public class Controller {
         }
     }
 
-    public void studentePrenotaSeduta(Tesi tesi, SedutaDiLaurea seduta) {
+    // MODIFICA: Sostituiti gli oggetti 'Tesi' e 'SedutaDiLaurea' con i rispettivi titoli/codici (String).
+    public void studentePrenotaSeduta(String titoloTesi, String codiceSeduta) {
         if (utenteLoggato instanceof Studente) {
             Studente s = (Studente) utenteLoggato;
+
+            // MODIFICA: Oggetti fittizi creati nel Controller per rispettare il Model.
+            // In futuro, il DAO cercherà la tesi e la seduta vera dal DB usando queste stringhe.
+            Tesi tesi = new Tesi(titoloTesi, "percorso", s);
+            SedutaDiLaurea seduta = new SedutaDiLaurea(new Date(), "09:00", "Luogo", codiceSeduta);
+
             s.prenotaSedutaLaurea(s, tesi, seduta);
         }
     }
@@ -65,6 +82,8 @@ public class Controller {
     // ==========================================================
     // AZIONI DEL DOCENTE
     // ==========================================================
+
+    // MODIFICA: Parametri già perfetti (int e String). Nessuna modifica.
     public void docenteAggiungiTirocinio(int id, String argomento) {
         if (utenteLoggato instanceof Docente) {
             Docente d = (Docente) utenteLoggato;
@@ -72,16 +91,28 @@ public class Controller {
         }
     }
 
-    public void docenteValutaRichiesta(RichiestaTirocinio richiesta, boolean approva) {
+    // MODIFICA: Invece dell'oggetto intero 'RichiestaTirocinio', riceviamo la matricola
+    // dello studente a cui stiamo approvando la richiesta.
+    public void docenteValutaRichiesta(String matricolaStudente, boolean approva) {
         if (utenteLoggato instanceof Docente) {
             Docente d = (Docente) utenteLoggato;
+
+            // Creiamo un mock della richiesta per usare il metodo del model.
+            Studente mockStudente = new Studente("stud", "123", "stud@mail", "Nome", "Cognome", matricolaStudente);
+            RichiestaTirocinio richiesta = new RichiestaTirocinio(new Date(), mockStudente, d, new Tirocinio(1, "Mock"));
+
             d.valutaRichiesta(richiesta, approva);
         }
     }
 
-    public void docenteValutaTesi(Tesi tesi, boolean approva) {
+    // MODIFICA: Sostituito l'oggetto 'Tesi' con la matricola dello studente di cui si valuta la tesi.
+    public void docenteValutaTesi(String matricolaStudente, boolean approva) {
         if (utenteLoggato instanceof Docente) {
             Docente d = (Docente) utenteLoggato;
+
+            Studente mockStudente = new Studente("stud", "123", "stud@mail", "Nome", "Cognome", matricolaStudente);
+            Tesi tesi = new Tesi("Titolo Mock", "File Mock", mockStudente);
+
             d.valutaTesi(tesi, approva);
         }
     }
@@ -89,6 +120,8 @@ public class Controller {
     // ==========================================================
     // AZIONI DEL COORDINATORE
     // ==========================================================
+
+    // MODIFICA: Parametri già corretti (tutti tipi base). Nessun cambiamento.
     public void coordinatoreInserisciSeduta(Date data, String ora, String luogo, String codice) {
         if (utenteLoggato instanceof Coordinatore) {
             Coordinatore c = (Coordinatore) utenteLoggato;
@@ -96,9 +129,14 @@ public class Controller {
         }
     }
 
-    public void coordinatoreAggiungiDocenteACommissione(Docente d, SedutaDiLaurea seduta) {
+    // MODIFICA: Sostituiti gli oggetti 'Docente' e 'SedutaDiLaurea' con le rispettive Stringhe identificative (SSN e Codice).
+    public void coordinatoreAggiungiDocenteACommissione(String ssnDocente, String codiceSeduta) {
         if (utenteLoggato instanceof Coordinatore) {
             Coordinatore c = (Coordinatore) utenteLoggato;
+
+            Docente d = new Docente("doc", "123", "doc@mail", "Nome", "Cognome", ssnDocente);
+            SedutaDiLaurea seduta = new SedutaDiLaurea(new Date(), "09:00", "Luogo", codiceSeduta);
+
             c.aggiungiDocenteACommissione(d, seduta);
         }
     }

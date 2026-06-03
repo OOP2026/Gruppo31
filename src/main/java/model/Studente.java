@@ -33,7 +33,8 @@ public class Studente extends Utente{
      */
 // richiediTirocinio serve a richiedere la partecipazione ad un tirocinio
     public RichiestaTirocinio richiediTirocinio(Docente relatore, Tirocinio tirocinio, Date dataRichiesta){
-        System.out.println("Creazione richiesta di tirocinio per: " + tirocinio.argomento);
+        // MODIFICA: Ora stampa l'ID del tirocinio (es. 123) e non la stringa fissa
+        System.out.println("Creazione richiesta di tirocinio con ID: " + tirocinio.id);
         return new RichiestaTirocinio(dataRichiesta, this, relatore, tirocinio);
     }
 
@@ -60,7 +61,8 @@ public class Studente extends Utente{
      */
 // prenotaSedutaLaurea serve a prenotare una seduta di laurea
     public PrenotazioneLaurea prenotaSedutaLaurea(Studente studente, Tesi tesi, SedutaDiLaurea seduta) {
-        System.out.println("Prenotazione alla seduta del " + seduta.getData() + " effettuata.");
+        // MODIFICA: Ora stampa il Codice della seduta (es. 123) e non la data di oggi
+        System.out.println("Prenotazione alla seduta con codice " + seduta.getCodice() + " effettuata.");
         return new PrenotazioneLaurea(studente, tesi, seduta);
     }
 

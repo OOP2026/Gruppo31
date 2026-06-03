@@ -1,43 +1,57 @@
 package gui;
 
 import controller.Controller;
-import model.*;
 import javax.swing.*;
-import java.util.Date;
 
 public class StudenteFrame extends JFrame {
 
-    // Aggiunto "transient" per la serializzazione
     private transient Controller controller;
 
-    // Componenti da associare nel file .form
     private JPanel panel1;
+    // Campi per la Tesi
     private JTextField txtTitoloTesi;
     private JTextField txtPercorsoFile;
     private JButton btnCaricaTesi;
+
+    // NUOVI CAMPI: Aggiunti per raccogliere i dati del Tirocinio dal .form
+    private JTextField txtSsnDocente;
+    private JTextField txtIdTirocinio;
     private JButton btnRichiediTirocinio;
+
+    // NUOVO CAMPO: Aggiunto per raccogliere il codice della Seduta dal .form
+    private JTextField txtCodiceSeduta;
     private JButton btnPrenotaSeduta;
 
     public StudenteFrame(Controller controller) {
         this.controller = controller;
         setContentPane(panel1);
         setTitle("Plancia Studente");
-        setSize(450, 350);
+        setSize(500, 450); // Ho aumentato un po' la dimensione per farci stare tutto
 
-        // Sostituito JFrame con WindowConstants
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Azione 1: Richiesta di Tirocinio (Convertita in Lambda)
+        // ==========================================
+        // AZIONE: Richiedi Tirocinio
+        // ==========================================
         btnRichiediTirocinio.addActionListener(e -> {
-            Docente mockDocente = new Docente("prof_verdi", "123", "verdi@unina.it", "Luigi", "Verdi", "SSN123");
-            Tirocinio mockTirocinio = new Tirocinio(101, "Sviluppo Interfacce Grafiche Java");
+            try {
+                // Leggiamo i dati veri inseriti dall'utente!
+                String ssnRelatore = txtSsnDocente.getText();
+                int idTirocinio = Integer.parseInt(txtIdTirocinio.getText());
 
-            controller.studenteRichiediTirocinio(mockDocente, mockTirocinio);
-            JOptionPane.showMessageDialog(StudenteFrame.this, "Richiesta di tirocinio inviata al docente!");
+                controller.studenteRichiediTirocinio(ssnRelatore, idTirocinio);
+                JOptionPane.showMessageDialog(StudenteFrame.this, "Richiesta di tirocinio inviata al docente!");
+
+            } catch (NumberFormatException ex) {
+                // Se lo studente scrive lettere al posto dell'ID (che è un numero), mostriamo errore
+                JOptionPane.showMessageDialog(StudenteFrame.this, "Attenzione: l'ID del tirocinio deve essere un numero!", "Errore Input", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
-        // Azione 2: Caricamento Elaborato Tesi (Convertita in Lambda)
+        // ==========================================
+        // AZIONE: Carica Tesi
+        // ==========================================
         btnCaricaTesi.addActionListener(e -> {
             String titolo = txtTitoloTesi.getText();
             String percorso = txtPercorsoFile.getText();
@@ -46,14 +60,19 @@ public class StudenteFrame extends JFrame {
             JOptionPane.showMessageDialog(StudenteFrame.this, "Tesi caricata con successo nel sistema!");
         });
 
-        // Azione 3: Prenotazione Appello di Laurea (Convertita in Lambda)
+        // ==========================================
+        // AZIONE: Prenota Seduta
+        // ==========================================
         btnPrenotaSeduta.addActionListener(e -> {
-            Studente s = (Studente) controller.getUtenteLoggato();
-            Tesi mockTesi = new Tesi("Sviluppo Software", "C:/tesi.pdf", s);
-            SedutaDiLaurea mockSeduta = new SedutaDiLaurea(new Date(), "09:00", "Aula Magna", "SED-2026");
+            String titoloTesi = txtTitoloTesi.getText(); // Usiamo il titolo scritto sopra
+            String codiceSeduta = txtCodiceSeduta.getText(); // Leggiamo il codice seduta
 
-            controller.studentePrenotaSeduta(mockTesi, mockSeduta);
-            JOptionPane.showMessageDialog(StudenteFrame.this, "Prenotazione alla seduta effettuata!");
+            if(titoloTesi.isEmpty() || codiceSeduta.isEmpty()) {
+                JOptionPane.showMessageDialog(StudenteFrame.this, "Compila il titolo della tesi e il codice della seduta!", "Errore", JOptionPane.WARNING_MESSAGE);
+            } else {
+                controller.studentePrenotaSeduta(titoloTesi, codiceSeduta);
+                JOptionPane.showMessageDialog(StudenteFrame.this, "Prenotazione alla seduta effettuata!");
+            }
         });
     }
 }

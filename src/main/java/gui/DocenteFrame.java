@@ -7,7 +7,6 @@ import java.util.Date;
 
 public class DocenteFrame extends JFrame {
 
-    // Aggiunto "transient" per la serializzazione
     private transient Controller controller;
 
     private JPanel panel1;
@@ -23,11 +22,9 @@ public class DocenteFrame extends JFrame {
         setTitle("GUI Docente / Relatore");
         setSize(450, 350);
 
-        // Sostituito JFrame con WindowConstants
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Azione 1: Proposta di un nuovo Tirocinio (Convertita in Lambda)
         btnAggiungiTirocinio.addActionListener(e -> {
             int id = Integer.parseInt(txtIdTirocinio.getText());
             String argomento = txtArgomentoTirocinio.getText();
@@ -36,22 +33,21 @@ public class DocenteFrame extends JFrame {
             JOptionPane.showMessageDialog(DocenteFrame.this, "Nuovo argomento di tirocinio aggiunto!");
         });
 
-        // Azione 2: Valutazione di una richiesta di tirocinio ricevevuta (Convertita in Lambda)
         btnApprovaRichiesta.addActionListener(e -> {
-            Studente mockStudente = new Studente("mario99", "123", "mario@stud.it", "Mario", "Rossi", "M001");
-            Tirocinio t = new Tirocinio(1, "Studio Algoritmi");
-            RichiestaTirocinio richiesta = new RichiestaTirocinio(new Date(), mockStudente, (Docente)controller.getUtenteLoggato(), t);
+            // MODIFICA: Rimossa la creazione fittizia di 'Studente', 'Tirocinio' e 'RichiestaTirocinio'.
+            // La GUI invia al controller solo la matricola dello studente associato alla richiesta.
+            String matricolaStudente = "M001";
 
-            controller.docenteValutaRichiesta(richiesta, true); // true = Approva
+            controller.docenteValutaRichiesta(matricolaStudente, true);
             JOptionPane.showMessageDialog(DocenteFrame.this, "Richiesta dello studente approvata!");
         });
 
-        // Azione 3: Approvazione elaborato tesi (Convertita in Lambda)
         btnApprovaTesi.addActionListener(e -> {
-            Studente mockStudente = new Studente("mario99", "123", "mario@stud.it", "Mario", "Rossi", "M001");
-            Tesi tesi = new Tesi("Studio Smart Contract", "file://tesi.pdf", mockStudente);
+            // MODIFICA: Rimossa l'interazione diretta con il Model ('new Studente' e 'new Tesi').
+            // Passiamo al controller solo la stringa della matricola dello studente di cui valutare la tesi.
+            String matricolaStudente = "M001";
 
-            controller.docenteValutaTesi(tesi, true);
+            controller.docenteValutaTesi(matricolaStudente, true);
             JOptionPane.showMessageDialog(DocenteFrame.this, "Elaborato finale approvato con successo!");
         });
     }
