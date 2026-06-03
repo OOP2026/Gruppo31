@@ -23,7 +23,7 @@ public class LoginFrame extends JFrame {
 
         setContentPane(panel1);
         setTitle("Sistema Gestione Lauree - Login");
-        setSize(400, 300);
+        setSize(350, 200);
 
         // Sostituito JFrame con WindowConstants
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
