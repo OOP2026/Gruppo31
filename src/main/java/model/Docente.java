@@ -31,6 +31,7 @@ public class Docente extends Utente{
      * @return the tirocinio
      */
 // aggiungiTirocinio aggiunge un nuovo tirocinio tra i disponibili
+    @SuppressWarnings("java:S106")
     public Tirocinio aggiungiTirocinio(int id, String argomento) {
         System.out.println("Nuovo tirocinio proposto: " + argomento);
         return new Tirocinio(id, argomento);
@@ -43,6 +44,7 @@ public class Docente extends Utente{
      * @param approvata the approvata
      */
 // valutaRichiesta serve ad approvare o rifiutare una richiesta di tirocinio di uno studente
+    @SuppressWarnings("java:S106")
     public void valutaRichiesta(RichiestaTirocinio richiesta, boolean approvata) {
         if (approvata) {
             richiesta.stato = StatoRichiesta.ACCETTATO;
@@ -60,6 +62,7 @@ public class Docente extends Utente{
      * @param approvata the approvata
      */
 // valutaTesi serve ad approvare o rifiutare una tesi di uno studente
+    @SuppressWarnings("java:S106")
     public void valutaTesi(Tesi tesi, boolean approvata) {
         if (approvata) {
             tesi.setStato(StatoTesi.ACCETTATO);

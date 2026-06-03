@@ -1,58 +1,96 @@
 package gui;
 
 import controller.Controller;
-import model.*;
 import javax.swing.*;
-import java.util.Date;
 
 public class DocenteFrame extends JFrame {
 
-    // Aggiunto "transient" per la serializzazione
     private transient Controller controller;
 
     private JPanel panel1;
     private JTextField txtIdTirocinio;
     private JTextField txtArgomentoTirocinio;
     private JButton btnAggiungiTirocinio;
+
+    // NUOVI CAMPI per la valutazione
+    private JTextField txtMatricolaRichiesta;
     private JButton btnApprovaRichiesta;
+
+    private JTextField txtMatricolaTesi;
     private JButton btnApprovaTesi;
 
     public DocenteFrame(Controller controller) {
         this.controller = controller;
         setContentPane(panel1);
         setTitle("GUI Docente / Relatore");
-        setSize(450, 350);
+        setSize(500, 450); // Ingrandito leggermente per i nuovi campi
 
-        // Sostituito JFrame con WindowConstants
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Azione 1: Proposta di un nuovo Tirocinio (Convertita in Lambda)
+        // ==========================================
+        // AZIONE: Aggiungi Tirocinio
+        // ==========================================
         btnAggiungiTirocinio.addActionListener(e -> {
-            int id = Integer.parseInt(txtIdTirocinio.getText());
-            String argomento = txtArgomentoTirocinio.getText();
+            try {
+                int id = Integer.parseInt(txtIdTirocinio.getText());
+                String argomento = txtArgomentoTirocinio.getText();
 
-            controller.docenteAggiungiTirocinio(id, argomento);
-            JOptionPane.showMessageDialog(DocenteFrame.this, "Nuovo argomento di tirocinio aggiunto!");
+                controller.docenteAggiungiTirocinio(id, argomento);
+                JOptionPane.showMessageDialog(DocenteFrame.this, "Nuovo argomento di tirocinio aggiunto!");
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(DocenteFrame.this, "L'ID deve essere un numero!");
+            }
         });
 
-        // Azione 2: Valutazione di una richiesta di tirocinio ricevevuta (Convertita in Lambda)
+        // ==========================================
+        // AZIONE: Valuta Richiesta
+        // ==========================================
         btnApprovaRichiesta.addActionListener(e -> {
-            Studente mockStudente = new Studente("mario99", "123", "mario@stud.it", "Mario", "Rossi", "M001");
-            Tirocinio t = new Tirocinio(1, "Studio Algoritmi");
-            RichiestaTirocinio richiesta = new RichiestaTirocinio(new Date(), mockStudente, (Docente)controller.getUtenteLoggato(), t);
+            String matricolaStudente = txtMatricolaRichiesta.getText();
 
-            controller.docenteValutaRichiesta(richiesta, true); // true = Approva
-            JOptionPane.showMessageDialog(DocenteFrame.this, "Richiesta dello studente approvata!");
+            if(matricolaStudente.isEmpty()) {
+                JOptionPane.showMessageDialog(DocenteFrame.this, "Inserisci la matricola dello studente!", "Errore", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // MODIFICA: Chiediamo dinamicamente se vuole approvare o rifiutare
+            int scelta = JOptionPane.showConfirmDialog(DocenteFrame.this,
+                    "Vuoi APPROVARE la richiesta dello studente " + matricolaStudente + "?\n(Scegli 'No' per rifiutarla)",
+                    "Valutazione Richiesta", JOptionPane.YES_NO_CANCEL_OPTION);
+
+            if (scelta == JOptionPane.YES_OPTION) {
+                controller.docenteValutaRichiesta(matricolaStudente, true); // true = Approvata
+                JOptionPane.showMessageDialog(DocenteFrame.this, "Richiesta approvata con successo!");
+            } else if (scelta == JOptionPane.NO_OPTION) {
+                controller.docenteValutaRichiesta(matricolaStudente, false); // false = Rifiutata
+                JOptionPane.showMessageDialog(DocenteFrame.this, "Richiesta rifiutata.");
+            }
         });
 
-        // Azione 3: Approvazione elaborato tesi (Convertita in Lambda)
+        // ==========================================
+        // AZIONE: Valuta Tesi
+        // ==========================================
         btnApprovaTesi.addActionListener(e -> {
-            Studente mockStudente = new Studente("mario99", "123", "mario@stud.it", "Mario", "Rossi", "M001");
-            Tesi tesi = new Tesi("Studio Smart Contract", "file://tesi.pdf", mockStudente);
+            String matricolaStudente = txtMatricolaTesi.getText();
 
-            controller.docenteValutaTesi(tesi, true);
-            JOptionPane.showMessageDialog(DocenteFrame.this, "Elaborato finale approvato con successo!");
+            if(matricolaStudente.isEmpty()) {
+                JOptionPane.showMessageDialog(DocenteFrame.this, "Inserisci la matricola dello studente!", "Errore", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // MODIFICA: Scelta dinamica anche per la tesi
+            int scelta = JOptionPane.showConfirmDialog(DocenteFrame.this,
+                    "Vuoi APPROVARE la tesi dello studente " + matricolaStudente + "?\n(Scegli 'No' per rifiutarla)",
+                    "Valutazione Tesi", JOptionPane.YES_NO_CANCEL_OPTION);
+
+            if (scelta == JOptionPane.YES_OPTION) {
+                controller.docenteValutaTesi(matricolaStudente, true);
+                JOptionPane.showMessageDialog(DocenteFrame.this, "Elaborato finale approvato!");
+            } else if (scelta == JOptionPane.NO_OPTION) {
+                controller.docenteValutaTesi(matricolaStudente, false);
+                JOptionPane.showMessageDialog(DocenteFrame.this, "Elaborato finale rifiutato!");
+            }
         });
     }
 }

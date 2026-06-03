@@ -11,6 +11,7 @@ public class Main {
 	 *
 	 * @param args the input arguments
 	 */
+	@SuppressWarnings("java:S106")
 	public static void main(String[] args) {
 		Docente d = new Docente("prof_mario", "ciao000", "mariorossi@professore.it", "Mario", "Rossi", "SSN000");
 		Studente s = new Studente("lolloz", "ciao123", "lorenzo@studente.it", "Lorenzo", "Mollo", "DE1086");
