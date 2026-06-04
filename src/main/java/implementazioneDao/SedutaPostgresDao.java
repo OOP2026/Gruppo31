@@ -1,14 +1,10 @@
 package implementazioneDao;
-
 import dao.SedutaDAO;
 import database_connection.ConnessioneDatabase;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Date;
 
 public class SedutaPostgresDao implements SedutaDAO {
-
     @Override
     public void inserisciSedutaDB(Date data, String ora, String luogo, String codice) throws SQLException {
         String query = "INSERT INTO seduta_laurea (codice, data_seduta, ora, luogo) VALUES (?, ?, ?, ?)";
@@ -21,14 +17,13 @@ public class SedutaPostgresDao implements SedutaDAO {
             pstmt.executeUpdate();
         }
     }
-
     @Override
-    public void aggiungiDocenteACommissioneDB(String ssnDocente, String codiceSeduta) throws SQLException {
+    public void aggiungiDocenteACommissioneDB(String ssnD, String codS) throws SQLException {
         String query = "INSERT INTO commissione (seduta_codice, docente_ssn) VALUES (?, ?)";
         try (Connection conn = ConnessioneDatabase.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, codiceSeduta);
-            pstmt.setString(2, ssnDocente);
+            pstmt.setString(1, codS);
+            pstmt.setString(2, ssnD);
             pstmt.executeUpdate();
         }
     }
