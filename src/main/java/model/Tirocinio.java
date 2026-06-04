@@ -23,4 +23,8 @@ public class Tirocinio {
         this.id=id;
         this.argomento=argomento;
     }
+
+    public int getId() {
+        return id;
+    }
 }

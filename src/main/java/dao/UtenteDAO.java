@@ -1,8 +1,8 @@
 package dao;
 
-/**
- * The interface Utente dao.
- */
-public interface UtenteDAO {
+import java.sql.SQLException;
+import java.util.ArrayList;
 
+public interface UtenteDAO {
+    boolean loginDB(String username, String password, ArrayList<String> userData) throws SQLException;
 }

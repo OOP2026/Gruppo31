@@ -25,8 +25,7 @@ public class Main {
 		c.aggiungiDocenteACommissione(d, sed);
 
 		Tesi tesi = s.caricaTesi("Titolo Tesi", "Desktop/tesi.pdf");
-		PrenotazioneLaurea prenotazione = s.prenotaSedutaLaurea(s,tesi, sed);
-
+		PrenotazioneLaurea prenotazione = s.prenotaSedutaLaurea(s, tesi, sed, new Date());
 		d.valutaTesi(tesi, true);
 		if (tesi.getStato() == StatoTesi.ACCETTATO) {
 			prenotazione.setStato(StatoLaurea.ACCETTATO);
