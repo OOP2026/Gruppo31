@@ -15,6 +15,10 @@ public class StudenteFrame extends JFrame {
     private JTextField txtCodiceSeduta;
     private JButton btnPrenotaSeduta;
 
+    // --- Definizione delle costanti per risolvere i warning di SonarLint ---
+    private static final String TITOLO_ERRORE = "Errore";
+    private static final String PREFISSO_ERRORE_DB = "Errore DB: ";
+
     public StudenteFrame(Controller controller) {
         this.controller = controller;
         setContentPane(panel1);
@@ -34,7 +38,7 @@ public class StudenteFrame extends JFrame {
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(StudenteFrame.this, "L'ID del tirocinio deve essere un numero!", "Errore Input", JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(StudenteFrame.this, "Errore DB: " + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(StudenteFrame.this, PREFISSO_ERRORE_DB + ex.getMessage(), TITOLO_ERRORE, JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -47,7 +51,7 @@ public class StudenteFrame extends JFrame {
                 JOptionPane.showMessageDialog(StudenteFrame.this, "Tesi caricata con successo!");
 
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(StudenteFrame.this, "Errore DB: " + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(StudenteFrame.this, PREFISSO_ERRORE_DB + ex.getMessage(), TITOLO_ERRORE, JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -57,13 +61,13 @@ public class StudenteFrame extends JFrame {
                 String codiceSeduta = txtCodiceSeduta.getText();
 
                 if(titoloTesi.isEmpty() || codiceSeduta.isEmpty()) {
-                    JOptionPane.showMessageDialog(StudenteFrame.this, "Compila il titolo e il codice della seduta!", "Errore", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(StudenteFrame.this, "Compila il titolo e il codice della seduta!", TITOLO_ERRORE, JOptionPane.WARNING_MESSAGE);
                 } else {
                     controller.studentePrenotaSeduta(titoloTesi, codiceSeduta);
                     JOptionPane.showMessageDialog(StudenteFrame.this, "Prenotazione effettuata!");
                 }
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(StudenteFrame.this, "Errore DB: " + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(StudenteFrame.this, PREFISSO_ERRORE_DB + ex.getMessage(), TITOLO_ERRORE, JOptionPane.ERROR_MESSAGE);
             }
         });
     }

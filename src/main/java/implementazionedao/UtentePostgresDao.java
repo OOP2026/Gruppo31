@@ -1,4 +1,4 @@
-package implementazioneDao;
+package implementazionedao;
 import dao.UtenteDAO;
 import database_connection.ConnessioneDatabase;
 import java.sql.*;
@@ -8,7 +8,7 @@ public class UtentePostgresDao implements UtenteDAO {
     @Override
     public boolean loginDB(String username, String password, ArrayList<String> userData) throws SQLException {
         String query = "SELECT * FROM utente WHERE username = ? AND password = ?";
-        try (Connection conn = ConnessioneDatabase.getInstance().getConnection();
+        try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, username);
             pstmt.setString(2, password);

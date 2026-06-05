@@ -4,6 +4,10 @@ import controller.Controller;
 import javax.swing.*;
 
 public class DocenteFrame extends JFrame {
+
+    // RISOLUZIONE ISSUE 1: Creata una costante per la stringa ripetuta
+    private static final String ERRORE_DB_PREFIX = "Errore DB: ";
+
     private transient Controller controller;
     private JPanel panel1;
     private JTextField txtIdTirocinio;
@@ -23,23 +27,33 @@ public class DocenteFrame extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
+        // RISOLUZIONE ISSUE 2: Il costruttore ora è pulito e chiama solo metodi esterni!
+        inizializzaListenerAggiungiTirocinio();
+        inizializzaListenerApprovaRichiesta();
+        inizializzaListenerApprovaTesi();
+    }
+
+    // --- METODI PRIVATI PER RIDURRE LA COMPLESSITÀ COGNITIVA ---
+
+    private void inizializzaListenerAggiungiTirocinio() {
         btnAggiungiTirocinio.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(txtIdTirocinio.getText());
                 String argomento = txtArgomentoTirocinio.getText();
 
-                // Chiamata al controller nel try
                 controller.docenteAggiungiTirocinio(id, argomento);
-                JOptionPane.showMessageDialog(DocenteFrame.this, "Nuovo argomento di tirocinio aggiunto!");
+                JOptionPane.showMessageDialog(this, "Nuovo argomento di tirocinio aggiunto!");
 
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(DocenteFrame.this, "L'ID deve essere un numero!");
+                JOptionPane.showMessageDialog(this, "L'ID deve essere un numero!");
             } catch (Exception ex) {
-                // Catch dell'eccezione del Database
-                JOptionPane.showMessageDialog(DocenteFrame.this, "Errore DB: " + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+                // Uso della costante al posto della stringa duplicata
+                JOptionPane.showMessageDialog(this, ERRORE_DB_PREFIX + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
             }
         });
+    }
 
+    private void inizializzaListenerApprovaRichiesta() {
         btnApprovaRichiesta.addActionListener(e -> {
             String matricola = txtMatricolaRichiesta.getText();
             String idTirocinioStr = txtIdTirocinioValutazione.getText();
@@ -65,28 +79,32 @@ public class DocenteFrame extends JFrame {
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "L'ID tirocinio deve essere un numero!");
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Errore DB: " + ex.getMessage());
+                // Uso della costante
+                JOptionPane.showMessageDialog(this, ERRORE_DB_PREFIX + ex.getMessage());
             }
         });
+    }
 
+    private void inizializzaListenerApprovaTesi() {
         btnApprovaTesi.addActionListener(e -> {
             String matricolaStudente = txtMatricolaTesi.getText();
             if(matricolaStudente.isEmpty()) return;
 
-            int scelta = JOptionPane.showConfirmDialog(DocenteFrame.this,
+            int scelta = JOptionPane.showConfirmDialog(this,
                     "Vuoi APPROVARE la tesi dello studente " + matricolaStudente + "?",
                     "Valutazione Tesi", JOptionPane.YES_NO_CANCEL_OPTION);
 
             try {
                 if (scelta == JOptionPane.YES_OPTION) {
                     controller.docenteValutaTesi(matricolaStudente, true);
-                    JOptionPane.showMessageDialog(DocenteFrame.this, "Elaborato finale approvato!");
+                    JOptionPane.showMessageDialog(this, "Elaborato finale approvato!");
                 } else if (scelta == JOptionPane.NO_OPTION) {
                     controller.docenteValutaTesi(matricolaStudente, false);
-                    JOptionPane.showMessageDialog(DocenteFrame.this, "Elaborato finale rifiutato!");
+                    JOptionPane.showMessageDialog(this, "Elaborato finale rifiutato!");
                 }
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(DocenteFrame.this, "Errore DB: " + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+                // Uso della costante
+                JOptionPane.showMessageDialog(this, ERRORE_DB_PREFIX + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
             }
         });
     }

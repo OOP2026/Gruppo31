@@ -1,8 +1,10 @@
 package controller;
 
 import dao.*;
-import implementazioneDao.*;
+import implementazionedao.*;
 import model.*;
+
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -24,7 +26,7 @@ public class Controller {
     // ==========================================================
     // LOGIN
     // ==========================================================
-    public boolean effettuaLogin(String username, String password) throws Exception {
+    public boolean effettuaLogin(String username, String password) throws SQLException {
         ArrayList<String> userData = new ArrayList<>();
         if (utenteDao.loginDB(username, password, userData)) {
             String ruolo = userData.get(0);
@@ -45,7 +47,7 @@ public class Controller {
     // ==========================================================
     // AZIONI DELLO STUDENTE
     // ==========================================================
-    public void studenteRichiediTirocinio(String ssnRelatore, int idTirocinio) throws Exception {
+    public void studenteRichiediTirocinio(String ssnRelatore, int idTirocinio) throws SQLException {
         if (utenteLoggato instanceof Studente) {
             // 1. Salva nel Database
             tirocinioDao.richiediTirocinioDB(new Date(), utenteLoggato.getUsername(), ssnRelatore, idTirocinio);
@@ -58,7 +60,7 @@ public class Controller {
         }
     }
 
-    public void studenteCaricaTesi(String titolo, String percorsoFile) throws Exception {
+    public void studenteCaricaTesi(String titolo, String percorsoFile) throws SQLException {
         if (utenteLoggato instanceof Studente) {
             // 1. Salva nel Database
             tesiDao.caricaTesiDB(titolo, percorsoFile, utenteLoggato.getUsername());
@@ -69,7 +71,7 @@ public class Controller {
         }
     }
 
-    public void studentePrenotaSeduta(String titoloTesi, String codiceSeduta) throws Exception {
+    public void studentePrenotaSeduta(String titoloTesi, String codiceSeduta) throws SQLException {
         if (utenteLoggato instanceof Studente) {
             // 1. Salva nel Database
             tesiDao.prenotaSedutaDB(new Date(), utenteLoggato.getUsername(), codiceSeduta);
@@ -85,7 +87,7 @@ public class Controller {
     // ==========================================================
     // AZIONI DEL DOCENTE
     // ==========================================================
-    public void docenteAggiungiTirocinio(int id, String argomento) throws Exception {
+    public void docenteAggiungiTirocinio(int id, String argomento) throws SQLException {
         if (utenteLoggato instanceof Docente) {
             // 1. Salva nel Database
             tirocinioDao.aggiungiTirocinioDB(id, argomento);
@@ -97,7 +99,7 @@ public class Controller {
         }
     }
 
-    public void docenteValutaRichiesta(String matricola, int idTirocinio, boolean approva) throws Exception {
+    public void docenteValutaRichiesta(String matricola, int idTirocinio, boolean approva) throws SQLException {
         if (utenteLoggato instanceof Docente) {
             String stato = approva ? "ACCETTATO" : "RIFIUTATO";
             // Passiamo anche l'ID al DAO se la tua query SQL lo richiede
@@ -112,7 +114,7 @@ public class Controller {
         }
     }
 
-    public void docenteValutaTesi(String matricolaStudente, boolean approva) throws Exception {
+    public void docenteValutaTesi(String matricolaStudente, boolean approva) throws SQLException {
         if (utenteLoggato instanceof Docente) {
             // 1. Salva nel Database
             String stato = approva ? "ACCETTATO" : "RIFIUTATO";
@@ -130,7 +132,7 @@ public class Controller {
     // ==========================================================
     // AZIONI DEL COORDINATORE
     // ==========================================================
-    public void coordinatoreInserisciSeduta(Date data, String ora, String luogo, String codice) throws Exception {
+    public void coordinatoreInserisciSeduta(Date data, String ora, String luogo, String codice) throws SQLException {
         if (utenteLoggato instanceof Coordinatore) {
             // 1. Salva nel Database
             sedutaDao.inserisciSedutaDB(data, ora, luogo, codice);
@@ -142,7 +144,7 @@ public class Controller {
         }
     }
 
-    public void coordinatoreAggiungiDocenteACommissione(String ssnDocente, String codiceSeduta) throws Exception {
+    public void coordinatoreAggiungiDocenteACommissione(String ssnDocente, String codiceSeduta) throws SQLException {
         if (utenteLoggato instanceof Coordinatore) {
             // 1. Salva nel Database
             sedutaDao.aggiungiDocenteACommissioneDB(ssnDocente, codiceSeduta);
