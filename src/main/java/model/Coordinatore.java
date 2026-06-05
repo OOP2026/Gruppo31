@@ -20,11 +20,9 @@ public class Coordinatore extends Docente{
      * @param nome     the nome
      * @param cognome  the cognome
      * @param ssn      the ssn
-     * @param corso    the corso
      */
-    public Coordinatore(String username, String password, String email, String nome, String cognome, String ssn, String corso){
+    public Coordinatore(String username, String password, String email, String nome, String cognome, String ssn) {
         super(username, password, email, nome, cognome, ssn);
-        this.nCorsoLaurea =corso;
     }
 
     // Il metodo inserisciSeduta serve a creare una nuova seduta di laurea

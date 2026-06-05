@@ -10,8 +10,7 @@ public class TirocinioPostgresDao implements TirocinioDAO {
         String query = "INSERT INTO tirocinio (id, argomento) VALUES (?, ?)";
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, id);
-            pstmt.setString(2, argomento);
+            pstmt.setInt(1, id); pstmt.setString(2, argomento);
             pstmt.executeUpdate();
         }
     }
@@ -21,9 +20,7 @@ public class TirocinioPostgresDao implements TirocinioDAO {
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setDate(1, new java.sql.Date(data.getTime()));
-            pstmt.setString(2, userS);
-            pstmt.setString(3, ssnD);
-            pstmt.setInt(4, idT);
+            pstmt.setString(2, userS); pstmt.setString(3, ssnD); pstmt.setInt(4, idT);
             pstmt.executeUpdate();
         }
     }
@@ -32,9 +29,7 @@ public class TirocinioPostgresDao implements TirocinioDAO {
         String query = "UPDATE richiesta_tirocinio SET stato = ? WHERE studente_username = (SELECT username FROM utente WHERE matricola = ?) AND tirocinio_id = ?";
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, stato);
-            pstmt.setString(2, matricola);
-            pstmt.setInt(3, idT);
+            pstmt.setString(1, stato); pstmt.setString(2, matricola); pstmt.setInt(3, idT);
             if (pstmt.executeUpdate() == 0) throw new SQLException("Richiesta non trovata!");
         }
     }

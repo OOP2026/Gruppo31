@@ -14,13 +14,9 @@ public class UtentePostgresDao implements UtenteDAO {
             pstmt.setString(2, password);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    userData.add(rs.getString("ruolo"));
-                    userData.add(rs.getString("email"));
-                    userData.add(rs.getString("nome"));
-                    userData.add(rs.getString("cognome"));
-                    userData.add(rs.getString("matricola"));
-                    userData.add(rs.getString("ssn"));
-                    userData.add(rs.getString("corso_laurea"));
+                    userData.add(rs.getString("ruolo")); userData.add(rs.getString("email"));
+                    userData.add(rs.getString("nome")); userData.add(rs.getString("cognome"));
+                    userData.add(rs.getString("matricola")); userData.add(rs.getString("ssn"));
                     return true;
                 }
             }

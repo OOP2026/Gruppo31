@@ -15,7 +15,7 @@ public class Main {
 	public static void main(String[] args) {
 		Docente d = new Docente("prof_mario", "ciao000", "mariorossi@professore.it", "Mario", "Rossi", "SSN000");
 		Studente s = new Studente("lolloz", "ciao123", "lorenzo@studente.it", "Lorenzo", "Mollo", "DE1086");
-		Coordinatore c = new Coordinatore("coord_anna", "ciao321", "annaversi@professore.it", "Carolina", "Monaco", "SSN321", "Informatica");
+		Coordinatore c = new Coordinatore("coord_anna", "ciao321", "annaversi@professore.it", "Carolina", "Monaco", "SSN321");
 
 		Tirocinio tirocinio1 = d.aggiungiTirocinio(1, "Esperienza Java");
 		RichiestaTirocinio req = s.richiediTirocinio(d, tirocinio1, new Date());
