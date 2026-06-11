@@ -3,7 +3,16 @@ package gui;
 import controller.Controller;
 import javax.swing.*;
 
+/**
+ * Interfaccia grafica (View) dedicata allo Studente.
+ * Questa finestra permette all'utente di interagire con il sistema per compiere
+ * le operazioni fondamentali del suo percorso: richiedere un tirocinio,
+ * caricare l'elaborato finale e prenotarsi per la seduta di laurea.
+ * Segue il pattern architetturale mantenendo la GUI "leggera": non contiene logica di business,
+ * ma delega tutte le operazioni al Controller.
+ */
 public class StudenteFrame extends JFrame {
+
     private transient Controller controller;
     private JPanel panel1;
     private JTextField txtTitoloTesi;
@@ -16,32 +25,51 @@ public class StudenteFrame extends JFrame {
     private JButton btnPrenotaSeduta;
 
     // --- Definizione delle costanti per risolvere i warning di SonarLint ---
+    // Centralizzare le stringhe ripetute è un'ottima pratica per la manutenibilità del codice
     private static final String TITOLO_ERRORE = "Errore";
     private static final String PREFISSO_ERRORE_DB = "Errore DB: ";
 
+    /**
+     * Costruttore della plancia Studente.
+     * Inizializza i componenti grafici (generati dal form) e mappa i click dei bottoni
+     * alle rispettive chiamate verso il Controller. Include la gestione delle eccezioni
+     * per mostrare popup di errore user-friendly in caso di problemi.
+     *
+     * @param controller l'istanza del controller centrale che gestisce il flusso dell'applicazione
+     */
     public StudenteFrame(Controller controller) {
         this.controller = controller;
         setContentPane(panel1);
         setTitle("Plancia Studente");
         setSize(500, 450);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(null); // Centra la finestra sullo schermo
 
+        // =================================================================
+        // AZIONE 1: RICHIESTA DI TIROCINIO
+        // =================================================================
         btnRichiediTirocinio.addActionListener(e -> {
             try {
+                // Raccoglie i dati in input
                 String ssnRelatore = txtSsnDocente.getText();
                 int idTirocinio = Integer.parseInt(txtIdTirocinio.getText());
 
+                // Delega al Controller l'operazione
                 controller.studenteRichiediTirocinio(ssnRelatore, idTirocinio);
                 JOptionPane.showMessageDialog(StudenteFrame.this, "Richiesta di tirocinio inviata!");
 
             } catch (NumberFormatException ex) {
+                // Cattura l'errore se l'utente inserisce testo al posto di un numero nell'ID
                 JOptionPane.showMessageDialog(StudenteFrame.this, "L'ID del tirocinio deve essere un numero!", "Errore Input", JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
+                // Cattura eventuali errori provenienti dal Database (DAO) o dalla logica
                 JOptionPane.showMessageDialog(StudenteFrame.this, PREFISSO_ERRORE_DB + ex.getMessage(), TITOLO_ERRORE, JOptionPane.ERROR_MESSAGE);
             }
         });
 
+        // =================================================================
+        // AZIONE 2: CARICAMENTO DELLA TESI
+        // =================================================================
         btnCaricaTesi.addActionListener(e -> {
             try {
                 String titolo = txtTitoloTesi.getText();
@@ -55,11 +83,15 @@ public class StudenteFrame extends JFrame {
             }
         });
 
+        // =================================================================
+        // AZIONE 3: PRENOTAZIONE ALLA SEDUTA DI LAUREA
+        // =================================================================
         btnPrenotaSeduta.addActionListener(e -> {
             try {
                 String titoloTesi = txtTitoloTesi.getText();
                 String codiceSeduta = txtCodiceSeduta.getText();
 
+                // Controllo preliminare per evitare che lo studente invii campi vuoti
                 if(titoloTesi.isEmpty() || codiceSeduta.isEmpty()) {
                     JOptionPane.showMessageDialog(StudenteFrame.this, "Compila il titolo e il codice della seduta!", TITOLO_ERRORE, JOptionPane.WARNING_MESSAGE);
                 } else {

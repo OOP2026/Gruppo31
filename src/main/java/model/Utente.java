@@ -1,57 +1,78 @@
 package model;
+
 /**
- * The type Utente.
+ * Rappresenta un utente generico del sistema.
+ * Funge da classe base (superclasse) da cui derivano tutti gli altri attori
+ * (Studente, Docente, Coordinatore). Centralizza la gestione dei dati anagrafici
+ * e delle credenziali, evitando duplicazioni di codice nelle classi figlie.
  */
 public class Utente {
+
     /**
-     * The Username.
+     * Il nome utente utilizzato per accedere al sistema.
+     * È visibile alle classi figlie grazie al modificatore 'protected'.
      */
     protected String username;
+
     /**
-     * The Password.
+     * La chiave di sicurezza per l'autenticazione.
      */
     protected String password;
+
     /**
-     * The Email.
+     * L'indirizzo di posta elettronica istituzionale dell'utente.
      */
     protected String email;
+
     /**
-     * The Nome.
+     * Il nome di battesimo dell'utente.
      */
     protected String nome;
+
     /**
-     * The Cognome.
+     * Il cognome dell'utente.
      */
     protected String cognome;
 
     /**
-     * Instantiates a new Utente.
+     * Costruttore della classe base Utente.
+     * Generalmente non viene usato per creare un utente generico, ma viene
+     * richiamato (tramite il comando 'super()') dai costruttori delle classi figlie
+     * per inizializzare i dati anagrafici condivisi.
      *
-     * @param username the username
-     * @param password the password
-     * @param email    the email
-     * @param nome     the nome
-     * @param cognome  the cognome
+     * @param username l'identificativo per il login
+     * @param password la password di accesso
+     * @param email    il recapito email ufficiale
+     * @param nome     il nome dell'utente
+     * @param cognome  il cognome dell'utente
      */
     public Utente(String username, String password, String email, String nome, String cognome){
-        this.username=username;
-        this.password=password;
-        this.email=email;
-        this.nome=nome;
-        this.cognome=cognome;
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.nome = nome;
+        this.cognome = cognome;
     }
 
     /**
-     * Login boolean.
+     * Esegue una validazione locale (in RAM) delle credenziali di accesso.
+     * Confronta l'username e la password forniti con quelli salvati nell'oggetto.
+     * (Nota: nel flusso principale, il vero login di sicurezza viene gestito dal DAO interrogando il Database).
      *
-     * @param username the username
-     * @param password the password
-     * @return the boolean
+     * @param username lo username digitato nel form di login
+     * @param password la password digitata nel form di login
+     * @return true se le credenziali corrispondono, false altrimenti
      */
     public boolean login(String username, String password) {
         return this.username.equals(username) && this.password.equals(password);
     }
 
+    // --- GETTER ---
+
+    /**
+     * Restituisce l'identificativo di login dell'utente.
+     * @return una stringa contenente lo username
+     */
     public String getUsername() {
         return username;
     }

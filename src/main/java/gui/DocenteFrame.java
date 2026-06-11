@@ -3,41 +3,70 @@ package gui;
 import controller.Controller;
 import javax.swing.*;
 
+/**
+ * Interfaccia grafica (View) dedicata al Docente.
+ * Mette a disposizione gli strumenti necessari per la gestione didattica:
+ * la pubblicazione di nuove offerte di tirocinio e la valutazione (approvazione o rifiuto)
+ * delle richieste di tirocinio e degli elaborati di tesi degli studenti.
+ */
 public class DocenteFrame extends JFrame {
 
+    // Costante per uniformare i messaggi di errore legati al database
     private static final String ERRORE_DB_PREFIX = "Errore DB: ";
+
     private transient Controller controller;
     private JPanel panel1;
+
+    // Componenti per l'aggiunta di un nuovo tirocinio
     private JTextField txtIdTirocinio;
     private JTextField txtArgomentoTirocinio;
     private JButton btnAggiungiTirocinio;
+
+    // Componenti per la valutazione di una richiesta di tirocinio
     private JTextField txtMatricolaRichiesta;
     private JButton btnApprovaRichiesta;
-    private JTextField txtMatricolaTesi;
-    private JButton btnApprovaTesi;
     private JTextField txtIdTirocinioValutazione;
 
+    // Componenti per la valutazione della tesi
+    private JTextField txtMatricolaTesi;
+    private JButton btnApprovaTesi;
+
+    /**
+     * Costruttore della plancia Docente.
+     * Imposta le dimensioni e la posizione della finestra, e richiama dei metodi
+     * "helper" (aiutanti) per inizializzare le azioni dei bottoni in modo ordinato.
+     *
+     * @param controller l'istanza del controller centrale
+     */
     public DocenteFrame(Controller controller) {
         this.controller = controller;
         setContentPane(panel1);
         setTitle("GUI Docente / Relatore");
         setSize(500, 450);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(null); // Centra la finestra
 
+        // Separare l'inizializzazione dei bottoni mantiene il costruttore pulito
         inizializzaListenerAggiungiTirocinio();
         inizializzaListenerApprovaRichiesta();
         inizializzaListenerApprovaTesi();
     }
 
+    /**
+     * Gestisce l'evento di click sul bottone "Aggiungi Tirocinio".
+     * Raccoglie l'ID e l'argomento e delega al controller il salvataggio.
+     */
     private void inizializzaListenerAggiungiTirocinio() {
         btnAggiungiTirocinio.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(txtIdTirocinio.getText());
                 String argomento = txtArgomentoTirocinio.getText();
+
                 controller.docenteAggiungiTirocinio(id, argomento);
                 JOptionPane.showMessageDialog(this, "Nuovo argomento di tirocinio aggiunto!");
+
             } catch (NumberFormatException ex) {
+                // Previene crash se il docente inserisce del testo nel campo numerico dell'ID
                 JOptionPane.showMessageDialog(this, "L'ID deve essere un numero!");
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, ERRORE_DB_PREFIX + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
@@ -45,18 +74,26 @@ public class DocenteFrame extends JFrame {
         });
     }
 
+    /**
+     * Gestisce l'evento di click sul bottone per la valutazione delle richieste di tirocinio.
+     * Utilizza un pannello di conferma (ConfirmDialog) per chiedere al professore
+     * se intende approvare o rifiutare la candidatura dello studente.
+     */
     private void inizializzaListenerApprovaRichiesta() {
         btnApprovaRichiesta.addActionListener(e -> {
             String matricola = txtMatricolaRichiesta.getText();
             String idTirocinioStr = txtIdTirocinioValutazione.getText();
 
+            // Controllo campi vuoti
             if (matricola.isEmpty() || idTirocinioStr.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Inserisci sia la matricola che l'ID tirocinio!");
-                return;
+                return; // Interrompe l'esecuzione se mancano dati
             }
 
             try {
                 int idTirocinio = Integer.parseInt(idTirocinioStr);
+
+                // Mostra un popup con i tasti "Sì", "No", "Annulla"
                 int scelta = JOptionPane.showConfirmDialog(this,
                         "Approvare la richiesta per la matricola " + matricola + " (ID: " + idTirocinio + ")?",
                         "Valutazione", JOptionPane.YES_NO_CANCEL_OPTION);
@@ -68,6 +105,8 @@ public class DocenteFrame extends JFrame {
                     controller.docenteValutaRichiesta(matricola, idTirocinio, false);
                     JOptionPane.showMessageDialog(this, "Richiesta rifiutata.");
                 }
+                // Se preme "Annulla" o chiude la finestra, non fa nulla
+
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "L'ID tirocinio deve essere un numero!");
             } catch (Exception ex) {
@@ -76,6 +115,11 @@ public class DocenteFrame extends JFrame {
         });
     }
 
+    /**
+     * Gestisce l'evento di click sul bottone per la valutazione finale della tesi.
+     * Simile al tirocinio, converte la scelta del docente (Sì/No) in un valore booleano
+     * da passare al Controller.
+     */
     private void inizializzaListenerApprovaTesi() {
         btnApprovaTesi.addActionListener(e -> {
             String matricolaStudente = txtMatricolaTesi.getText();
