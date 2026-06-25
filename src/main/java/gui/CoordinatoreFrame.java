@@ -24,6 +24,10 @@ public class CoordinatoreFrame extends JFrame {
     private JTextField txtSsnDocenteCommissione;
     private JTextField txtCodiceSedutaCommissione;
     private JButton btnComponiCommissione;
+    private JTextField txtRicercaSeduta;
+    private JButton btnCercaStudenti;
+    private JTable tblStudentiSeduta;
+    private JButton btnHome;
 
     /**
      * Costruttore della plancia del Coordinatore.
@@ -82,5 +86,37 @@ public class CoordinatoreFrame extends JFrame {
                 JOptionPane.showMessageDialog(CoordinatoreFrame.this, "Errore DB: " + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
             }
         });
+        btnCercaStudenti.addActionListener(e -> {
+            String codiceCercato = txtRicercaSeduta.getText();
+            if (codiceCercato.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Inserisci il codice della seduta per cercare gli studenti.");
+            } else {
+                aggiornaTabellaStudenti(codiceCercato);
+            }
+
+        });
+        // =================================================================
+// TASTO HOME / LOGOUT
+// =================================================================
+        btnHome.addActionListener(e -> {
+            // Riapre la schermata di login passando il controller
+            new LoginFrame(controller).setVisible(true);
+            // Chiude la schermata attuale
+            dispose();
+        });
     }
+    private void aggiornaTabellaStudenti(String codiceSeduta) {
+        try {
+            String[] colonne = {"Matricola", "Nome", "Cognome", "Titolo Tesi"};
+            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(colonne, 0);
+            for (String[] riga : controller.getStudentiPerSeduta(codiceSeduta)) {
+                model.addRow(riga);
+            }
+            if (tblStudentiSeduta != null) tblStudentiSeduta.setModel(model);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Errore caricamento lista: " + ex.getMessage());
+        }
+    }
+
+
 }

@@ -30,6 +30,11 @@ public class DocenteFrame extends JFrame {
     // Componenti per la valutazione della tesi
     private JTextField txtMatricolaTesi;
     private JButton btnApprovaTesi;
+    private JCheckBox chkTirocinioEsterno;
+    private JTextField txtAzienda;
+    private JTextField txtReferenteAziendale;
+    private JTable tblRichiesteStudenti;
+    private JButton btnHome;
 
     /**
      * Costruttore della plancia Docente.
@@ -62,11 +67,26 @@ public class DocenteFrame extends JFrame {
                 int id = Integer.parseInt(txtIdTirocinio.getText());
                 String argomento = txtArgomentoTirocinio.getText();
 
-                controller.docenteAggiungiTirocinio(id, argomento);
-                JOptionPane.showMessageDialog(this, "Nuovo argomento di tirocinio aggiunto!");
+                // Controlla se la spunta per il tirocinio esterno è stata cliccata
+                if (chkTirocinioEsterno != null && chkTirocinioEsterno.isSelected()) {
+                    String azienda = txtAzienda.getText();
+                    String referente = txtReferenteAziendale.getText();
+
+                    if (azienda.isEmpty() || referente.isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Per i tirocini esterni devi indicare Azienda e Referente!", "Dati Mancanti", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+
+                    // Chiama la nuova funzione del controller (ricordati di averla incollata in Controller.java)
+                    controller.docenteAggiungiTirocinioEsterno(id, argomento, azienda, referente);
+                    JOptionPane.showMessageDialog(this, "Nuovo tirocinio ESTERNO (Aziendale) aggiunto!");
+                } else {
+                    // Inserimento classico
+                    controller.docenteAggiungiTirocinio(id, argomento);
+                    JOptionPane.showMessageDialog(this, "Nuovo argomento di tirocinio INTERNO aggiunto!");
+                }
 
             } catch (NumberFormatException ex) {
-                // Previene crash se il docente inserisce del testo nel campo numerico dell'ID
                 JOptionPane.showMessageDialog(this, "L'ID deve essere un numero!");
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, ERRORE_DB_PREFIX + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
@@ -141,5 +161,42 @@ public class DocenteFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, ERRORE_DB_PREFIX + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
             }
         });
+
+        chkTirocinioEsterno.addActionListener(e -> {
+            boolean isEsterno = chkTirocinioEsterno.isSelected();
+            txtAzienda.setEnabled(isEsterno);
+            txtReferenteAziendale.setEnabled(isEsterno);
+
+            // Svuota i campi se togliamo la spunta
+            if (!isEsterno) {
+                txtAzienda.setText("");
+                txtReferenteAziendale.setText("");
+            }
+
+        });
+        btnHome.addActionListener(e -> {
+            // Riapre la schermata di login passando il controller
+            new LoginFrame(controller).setVisible(true);
+            // Chiude la schermata attuale
+            dispose();
+        });
+        // Stato di default all'apertura: campi disabilitati
+        txtAzienda.setEnabled(false);
+        txtReferenteAziendale.setEnabled(false);
+        aggiornaTabellaRichieste();
     }
+    private void aggiornaTabellaRichieste() {
+        try {
+            String[] colonne = {"Matricola", "Studente", "ID Tirocinio", "Argomento", "Stato"};
+            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(colonne, 0);
+            for (String[] riga : controller.getRichiestePerDocente()) {
+                model.addRow(riga);
+            }
+            if (tblRichiesteStudenti != null) tblRichiesteStudenti.setModel(model);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
 }

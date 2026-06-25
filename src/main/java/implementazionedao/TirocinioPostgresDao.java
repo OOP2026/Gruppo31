@@ -22,15 +22,14 @@ public class TirocinioPostgresDao implements TirocinioDAO {
      * @throws SQLException in caso di errore di connessione o se l'ID è già esistente (violazione Primary Key)
      */
     @Override
-    public void aggiungiTirocinioDB(int id, String argomento) throws SQLException {
-        String query = "INSERT INTO tirocinio (id, argomento) VALUES (?, ?)";
-
+    public void aggiungiTirocinioDB(int id, String argomento, String ssnDocente) throws SQLException {
+        // Ora inseriamo anche la chiave esterna docente_ssn
+        String query = "INSERT INTO tirocinio (id, argomento, is_esterno, docente_ssn) VALUES (?, ?, false, ?)";
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
-
             pstmt.setInt(1, id);
             pstmt.setString(2, argomento);
-
+            pstmt.setString(3, ssnDocente);
             pstmt.executeUpdate();
         }
     }
@@ -89,5 +88,85 @@ public class TirocinioPostgresDao implements TirocinioDAO {
                 throw new SQLException("Richiesta non trovata! Controlla la matricola e l'ID del tirocinio.");
             }
         }
+    }
+
+    @Override
+    public void aggiungiTirocinioEsternoDB(int id, String argomento, String azienda, String referenteAziendale, String ssnDocente) throws SQLException {
+        String query = "INSERT INTO tirocinio (id, argomento, azienda, referente_aziendale, is_esterno, docente_ssn) VALUES (?, ?, ?, ?, true, ?)";
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, id);
+            pstmt.setString(2, argomento);
+            pstmt.setString(3, azienda);
+            pstmt.setString(4, referenteAziendale);
+            pstmt.setString(5, ssnDocente);
+            pstmt.executeUpdate();
+        }
+    }
+
+    @Override
+    public java.util.List<String[]> getTirociniDisponibiliDB() throws SQLException {
+        java.util.List<String[]> risultati = new java.util.ArrayList<>();
+        // Facciamo una JOIN per recuperare nome e cognome del professore partendo dal suo SSN
+        String query = "SELECT t.id, t.argomento, t.is_esterno, t.azienda, t.docente_ssn, u.nome, u.cognome " +
+                "FROM tirocinio t JOIN utente u ON t.docente_ssn = u.ssn";
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                String tipo = rs.getBoolean("is_esterno") ? "Esterno (" + rs.getString("azienda") + ")" : "Interno";
+                String prof = rs.getString("nome") + " " + rs.getString("cognome");
+
+                // Aggiungiamo alla riga anche l'SSN e il nome del Prof
+                risultati.add(new String[]{
+                        String.valueOf(rs.getInt("id")),
+                        rs.getString("argomento"),
+                        tipo,
+                        rs.getString("docente_ssn"),
+                        prof
+                });
+            }
+        }
+        return risultati;
+    }
+
+    @Override
+    public java.util.List<String[]> getRichiesteStudenteDB(String username) throws SQLException {
+        java.util.List<String[]> risultati = new java.util.ArrayList<>();
+        String query = "SELECT t.argomento, u.nome || ' ' || u.cognome AS relatore, r.stato " +
+                "FROM richiesta_tirocinio r " +
+                "JOIN tirocinio t ON r.tirocinio_id = t.id " +
+                "JOIN utente u ON r.docente_ssn = u.ssn " +
+                "WHERE r.studente_username = ?";
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    risultati.add(new String[]{rs.getString("argomento"), rs.getString("relatore"), rs.getString("stato")});
+                }
+            }
+        }
+        return risultati;
+    }
+
+    @Override
+    public java.util.List<String[]> getRichiestePerDocenteDB(String ssnDocente) throws SQLException {
+        java.util.List<String[]> risultati = new java.util.ArrayList<>();
+        String query = "SELECT u.matricola, u.nome || ' ' || u.cognome AS studente, t.id, t.argomento, r.stato " +
+                "FROM richiesta_tirocinio r " +
+                "JOIN utente u ON r.studente_username = u.username " +
+                "JOIN tirocinio t ON r.tirocinio_id = t.id " +
+                "WHERE r.docente_ssn = ?";
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, ssnDocente);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    risultati.add(new String[]{rs.getString("matricola"), rs.getString("studente"), String.valueOf(rs.getInt("id")), rs.getString("argomento"), rs.getString("stato")});
+                }
+            }
+        }
+        return risultati;
     }
 }

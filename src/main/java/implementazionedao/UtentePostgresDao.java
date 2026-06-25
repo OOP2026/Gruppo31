@@ -58,4 +58,27 @@ public class UtentePostgresDao implements UtenteDAO {
         // Se arriviamo qui, rs.next() era falso: credenziali errate o utente inesistente
         return false;
     }
+
+    @Override
+    public void registraUtenteDB(String username, String password, String email, String nome, String cognome, String ruolo, String matricola, String ssn) throws SQLException {
+        String query = "INSERT INTO utente (username, password, email, nome, cognome, ruolo, matricola, ssn) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            pstmt.setString(3, email);
+            pstmt.setString(4, nome);
+            pstmt.setString(5, cognome);
+            pstmt.setString(6, ruolo);
+
+            // Se lo studente non ha l'SSN o il docente non ha la matricola, nel DB scriviamo NULL
+            if (matricola == null || matricola.trim().isEmpty()) pstmt.setNull(7, java.sql.Types.VARCHAR);
+            else pstmt.setString(7, matricola);
+
+            if (ssn == null || ssn.trim().isEmpty()) pstmt.setNull(8, java.sql.Types.VARCHAR);
+            else pstmt.setString(8, ssn);
+
+            pstmt.executeUpdate();
+        }
+    }
 }

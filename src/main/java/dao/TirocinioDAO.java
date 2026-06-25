@@ -19,8 +19,7 @@ public interface TirocinioDAO {
      * @param argomento la descrizione o il tema dell'attività proposta
      * @throws SQLException in caso di errori (es. se esiste già un tirocinio con lo stesso ID)
      */
-    void aggiungiTirocinioDB(int id, String argomento) throws SQLException;
-
+    void aggiungiTirocinioDB(int id, String argomento, String ssnDocente) throws SQLException;
     /**
      * Registra la candidatura di uno studente per un determinato tirocinio.
      * Salva nel database il collegamento tra lo studente, il professore responsabile
@@ -44,4 +43,9 @@ public interface TirocinioDAO {
      * @throws SQLException se la richiesta non viene trovata nel database
      */
     void valutaRichiestaDB(String matricola, int idTirocinio, String stato) throws SQLException;
+
+    void aggiungiTirocinioEsternoDB(int id, String argomento, String azienda, String referenteAziendale, String ssnDocente) throws SQLException;
+    java.util.List<String[]> getTirociniDisponibiliDB() throws SQLException;
+    java.util.List<String[]> getRichiesteStudenteDB(String username) throws SQLException;
+    java.util.List<String[]> getRichiestePerDocenteDB(String ssnDocente) throws SQLException;
 }

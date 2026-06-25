@@ -23,6 +23,9 @@ public class StudenteFrame extends JFrame {
     private JButton btnRichiediTirocinio;
     private JTextField txtCodiceSeduta;
     private JButton btnPrenotaSeduta;
+    private JTable tblTirocini;
+    private JTable tblStatoRichieste;
+    private JButton btnHome;
 
     // --- Definizione delle costanti per risolvere i warning di SonarLint ---
     // Centralizzare le stringhe ripetute è un'ottima pratica per la manutenibilità del codice
@@ -102,5 +105,72 @@ public class StudenteFrame extends JFrame {
                 JOptionPane.showMessageDialog(StudenteFrame.this, PREFISSO_ERRORE_DB + ex.getMessage(), TITOLO_ERRORE, JOptionPane.ERROR_MESSAGE);
             }
         });
+        aggiornaTabellaTirocini();
+        aggiornaTabellaStatoRichieste();
     }
+    private void aggiornaTabellaTirocini() {
+        try {
+            // Aggiunte le due nuove colonne per il Docente
+            String[] colonne = {"ID Tirocinio", "Argomento", "Tipologia", "SSN Docente", "Relatore"};
+            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(colonne, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false; // Rende la tabella non modificabile
+                }
+            };
+
+            for (String[] riga : controller.getElencoTirociniDisponibili()) {
+                model.addRow(riga);
+            }
+            if(tblTirocini != null) {
+                tblTirocini.setModel(model);
+
+                // Rimuoviamo eventuali vecchi listener per evitare bug di click doppi
+                for(java.awt.event.MouseListener ml : tblTirocini.getMouseListeners()) {
+                    tblTirocini.removeMouseListener(ml);
+                }
+
+                // =========================================================
+                // LA MAGIA: Autocompilazione al click sulla tabella
+                // =========================================================
+                tblTirocini.addMouseListener(new java.awt.event.MouseAdapter() {
+                    @Override
+                    public void mouseClicked(java.awt.event.MouseEvent e) {
+                        int rigaSelezionata = tblTirocini.getSelectedRow();
+                        if (rigaSelezionata != -1) {
+                            // Prende l'ID Tirocinio (Colonna 0) e lo mette nel campo
+                            txtIdTirocinio.setText(tblTirocini.getValueAt(rigaSelezionata, 0).toString());
+                            // Prende l'SSN del Docente (Colonna 3) e lo mette nel campo
+                            txtSsnDocente.setText(tblTirocini.getValueAt(rigaSelezionata, 3).toString());
+                        }
+                    }
+                });
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void aggiornaTabellaStatoRichieste() {
+        try {
+            String[] colonne = {"Argomento", "Relatore", "Stato"};
+            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(colonne, 0);
+            for (String[] riga : controller.getStatoRichiesteStudente()) {
+                model.addRow(riga);
+            }
+            if (tblStatoRichieste != null) tblStatoRichieste.setModel(model);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        // =================================================================
+// TASTO HOME / LOGOUT
+// =================================================================
+        btnHome.addActionListener(e -> {
+            // Riapre la schermata di login passando il controller
+            new LoginFrame(controller).setVisible(true);
+            // Chiude la schermata attuale
+            dispose();
+        });
+    }
+
 }

@@ -24,4 +24,6 @@ public interface UtenteDAO {
      * @throws SQLException in caso di problemi di comunicazione con il database
      */
     boolean loginDB(String username, String password, ArrayList<String> userData) throws SQLException;
+    void registraUtenteDB(String username, String password, String email, String nome, String cognome, String ruolo, String matricola, String ssn) throws SQLException;
 }
+

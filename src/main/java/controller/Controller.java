@@ -88,16 +88,10 @@ public class Controller {
      * Permette a un docente di inserire una nuova proposta di tirocinio.
      */
     public void docenteAggiungiTirocinio(int id, String argomento) throws Exception {
-        // Guardia di sicurezza: solo un docente può eseguire questa operazione
         if (utenteLoggato instanceof Docente) {
-            // 1. Salva in modo persistente nel Database
-            tirocinioDao.aggiungiTirocinioDB(id, argomento);
-
-            // 2. Salva nello stato in memoria (RAM)
             Docente d = (Docente) utenteLoggato;
+            tirocinioDao.aggiungiTirocinioDB(id, argomento, d.getSsn());
             d.aggiungiTirocinio(id, argomento);
-
-            System.out.println("LOG: Tirocinio " + id + " aggiunto in RAM.");
         }
     }
 
@@ -174,7 +168,62 @@ public class Controller {
 
     public void coordinatoreAggiungiDocenteACommissione(String ssnDocente, String codiceSeduta) throws Exception {
         if (utenteLoggato instanceof Coordinatore) {
+            // VERIFICA DEL VINCOLO DI TRACCIA:
+            // Controlliamo che il docente sia effettivamente relatore di almeno uno studente in quella seduta,
+            // e che la tesi sia stata approvata dal relatore.
+            boolean idoneo = sedutaDao.verificaDocenteValidoPerCommissione(ssnDocente, codiceSeduta);
+
+            if (!idoneo) {
+                throw new Exception("Impossibile inserire il docente. Il professore non risulta relatore di nessun candidato con tesi approvata per questa seduta.");
+            }
+
+            // Se il controllo passa, eseguiamo l'inserimento
             sedutaDao.aggiungiDocenteACommissioneDB(ssnDocente, codiceSeduta);
         }
     }
+
+    // =================================================================
+// NUOVA FUNZIONE DI REGISTRAZIONE
+// =================================================================
+    public void effettuaRegistrazione(String username, String password, String email, String nome, String cognome, String ruolo, String matricola, String ssn) throws Exception {
+        // Chiamata diretta al DAO per la scrittura permanente
+        utenteDao.registraUtenteDB(username, password, email, nome, cognome, ruolo, matricola, ssn);
+        System.out.println("LOG: Utente " + username + " registrato con ruolo " + ruolo);
+    }
+
+    // =================================================================
+// FUNZIONE AGGIORNATA DOCENTE (Gestione Interno / Esterno)
+// =================================================================
+    public void docenteAggiungiTirocinioEsterno(int id, String argomento, String azienda, String referente) throws Exception {
+        if (utenteLoggato instanceof Docente) {
+            Docente d = (Docente) utenteLoggato;
+            tirocinioDao.aggiungiTirocinioEsternoDB(id, argomento, azienda, referente, d.getSsn());
+            TirocinioEsterno te = new TirocinioEsterno(id, argomento, referente, azienda);
+        }
+    }
+
+    // --- METODI PER VISUALIZZAZIONE TABELLE ---
+
+    public java.util.List<String[]> getElencoTirociniDisponibili() throws Exception {
+        return tirocinioDao.getTirociniDisponibiliDB();
+    }
+
+    public java.util.List<String[]> getStatoRichiesteStudente() throws Exception {
+        if (utenteLoggato instanceof Studente) {
+            return tirocinioDao.getRichiesteStudenteDB(utenteLoggato.getUsername());
+        }
+        return new java.util.ArrayList<>();
+    }
+
+    public java.util.List<String[]> getRichiestePerDocente() throws Exception {
+        if (utenteLoggato instanceof Docente) {
+            return tirocinioDao.getRichiestePerDocenteDB(((Docente) utenteLoggato).getSsn());
+        }
+        return new java.util.ArrayList<>();
+    }
+
+    public java.util.List<String[]> getStudentiPerSeduta(String codiceSeduta) throws Exception {
+        return sedutaDao.getStudentiPerSedutaDB(codiceSeduta);
+    }
+
 }

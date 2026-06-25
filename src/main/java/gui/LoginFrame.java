@@ -22,6 +22,7 @@ public class LoginFrame extends JFrame {
     private JPasswordField txtPassword; // Utilizzato per oscurare i caratteri digitati per sicurezza
     private JButton btnLogin;
     private JLabel lblErrore;
+    private JButton btnRegistrati;
 
     /**
      * Costruttore della schermata di Login.
@@ -80,6 +81,11 @@ public class LoginFrame extends JFrame {
                         "Errore di connessione al Database:\n" + ex.getMessage(),
                         "Errore di Sistema", JOptionPane.ERROR_MESSAGE);
             }
+        });
+
+        btnRegistrati.addActionListener(e -> {
+            new RegistrazioneFrame(controller).setVisible(true);
+            dispose();
         });
     }
 }

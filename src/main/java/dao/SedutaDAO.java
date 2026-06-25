@@ -32,4 +32,8 @@ public interface SedutaDAO {
      * @throws SQLException in caso di errori (es. violazione della chiave esterna se il docente non esiste)
      */
     void aggiungiDocenteACommissioneDB(String ssnDocente, String codiceSeduta) throws SQLException;
+
+    boolean verificaDocenteValidoPerCommissione(String ssnDocente, String codiceSeduta) throws SQLException;
+
+    java.util.List<String[]> getStudentiPerSedutaDB(String codiceSeduta) throws SQLException;
 }
