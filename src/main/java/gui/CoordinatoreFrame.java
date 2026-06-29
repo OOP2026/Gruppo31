@@ -4,119 +4,207 @@ import controller.Controller;
 import javax.swing.*;
 import java.util.Date;
 
-/**
- * Interfaccia grafica (View) per l'amministrazione, dedicata al Coordinatore.
- * Permette la gestione organizzativa e logistica delle lauree:
- * la pianificazione di nuove sedute e l'assegnazione dei docenti alle commissioni d'esame.
- */
 public class CoordinatoreFrame extends JFrame {
-
     private transient Controller controller;
     private JPanel panel1;
 
-    // Componenti per la creazione di una nuova seduta
+    private JTextField txtDataSeduta;
     private JTextField txtOraSeduta;
     private JTextField txtLuogoSeduta;
     private JTextField txtCodiceSeduta;
     private JButton btnCreaSeduta;
 
-    // Componenti per la composizione della commissione
     private JTextField txtSsnDocenteCommissione;
     private JTextField txtCodiceSedutaCommissione;
     private JButton btnComponiCommissione;
+
     private JTextField txtRicercaSeduta;
     private JButton btnCercaStudenti;
+    private JButton btnMostraCommissione;
+
     private JTable tblStudentiSeduta;
+    private JTable tblCommissione;
+    private JTable tblSedute;
+    private JTable tblDocenti;
+
     private JButton btnHome;
 
-    /**
-     * Costruttore della plancia del Coordinatore.
-     * Inizializza i componenti visivi e mappa le azioni amministrative sui rispettivi bottoni.
-     *
-     * @param controller l'istanza del controller centrale
-     */
     public CoordinatoreFrame(Controller controller) {
         this.controller = controller;
         setContentPane(panel1);
         setTitle("Amministrazione - Coordinatore");
-        setSize(500, 450);
+        setSize(1000, 750);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Centra la finestra
+        setLocationRelativeTo(null);
 
-        // =================================================================
-        // AZIONE 1: CREAZIONE DI UNA NUOVA SEDUTA
-        // =================================================================
+        if(btnHome != null) {
+            btnHome.addActionListener(e -> {
+                new LoginFrame(controller).setVisible(true);
+                dispose();
+            });
+        }
+
         btnCreaSeduta.addActionListener(e -> {
             try {
+                String dataStr = txtDataSeduta.getText();
                 String ora = txtOraSeduta.getText();
                 String luogo = txtLuogoSeduta.getText();
                 String codice = txtCodiceSeduta.getText();
 
-                // Sicurezza: se manca anche un solo dato, interrompiamo subito l'operazione
-                if (ora.isEmpty() || luogo.isEmpty() || codice.isEmpty()) return;
+                if (dataStr.isEmpty() || ora.isEmpty() || luogo.isEmpty() || codice.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Compila tutti i campi per creare la seduta!");
+                    return;
+                }
 
-                // Delega l'operazione al Controller.
-                // Nota: Per la demo si utilizza new Date() che imposta la data odierna.
-                controller.coordinatoreInserisciSeduta(new Date(), ora, luogo, codice);
-                JOptionPane.showMessageDialog(CoordinatoreFrame.this, "Seduta inserita nel calendario accademico!");
+                java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                java.util.Date dataFormattata = format.parse(dataStr);
 
+                controller.coordinatoreInserisciSeduta(dataFormattata, ora, luogo, codice);
+                JOptionPane.showMessageDialog(this, "Seduta inserita nel calendario accademico!");
+
+                aggiornaTabellaSedute();
+
+                txtDataSeduta.setText("");
+                txtOraSeduta.setText("");
+                txtLuogoSeduta.setText("");
+                txtCodiceSeduta.setText("");
+
+            } catch (java.text.ParseException ex) {
+                JOptionPane.showMessageDialog(this, "Formato data errato! Usa AAAA-MM-GG (es. 2026-07-20)", "Errore Data", JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
-                // Cattura eventuali errori (es. Codice seduta già esistente nel DB)
-                JOptionPane.showMessageDialog(CoordinatoreFrame.this, "Errore DB: " + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Errore DB: " + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        // =================================================================
-        // AZIONE 2: AGGIUNTA DI UN DOCENTE ALLA COMMISSIONE
-        // =================================================================
         btnComponiCommissione.addActionListener(e -> {
             try {
                 String ssnDocente = txtSsnDocenteCommissione.getText();
                 String codiceSeduta = txtCodiceSedutaCommissione.getText();
 
-                // Controllo sui campi obbligatori
-                if (ssnDocente.isEmpty() || codiceSeduta.isEmpty()) return;
+                if (ssnDocente.isEmpty() || codiceSeduta.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Seleziona un Docente e una Seduta dalle tabelle!");
+                    return;
+                }
 
-                // Chiama il Controller per creare la riga di congiunzione nel Database
                 controller.coordinatoreAggiungiDocenteACommissione(ssnDocente, codiceSeduta);
-                JOptionPane.showMessageDialog(CoordinatoreFrame.this, "Docente aggiunto alla commissione!");
+                JOptionPane.showMessageDialog(this, "Docente aggiunto alla commissione con successo!");
+
+                // Aggiorna la tabella della commissione in tempo reale se si sta visualizzando quella seduta
+                aggiornaTabellaCommissione(codiceSeduta);
 
             } catch (Exception ex) {
-                // Cattura eventuali errori (es. SSN non trovato, o Seduta inesistente)
-                JOptionPane.showMessageDialog(CoordinatoreFrame.this, "Errore DB: " + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Impossibile aggiungere Docente", JOptionPane.WARNING_MESSAGE);
             }
         });
-        btnCercaStudenti.addActionListener(e -> {
-            String codiceCercato = txtRicercaSeduta.getText();
-            if (codiceCercato.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Inserisci il codice della seduta per cercare gli studenti.");
-            } else {
-                aggiornaTabellaStudenti(codiceCercato);
-            }
 
-        });
-        // =================================================================
-// TASTO HOME / LOGOUT
-// =================================================================
-        btnHome.addActionListener(e -> {
-            // Riapre la schermata di login passando il controller
-            new LoginFrame(controller).setVisible(true);
-            // Chiude la schermata attuale
-            dispose();
-        });
+        if (btnCercaStudenti != null) {
+            btnCercaStudenti.addActionListener(e -> {
+                String codiceCercato = txtRicercaSeduta.getText();
+                if (codiceCercato.isEmpty()) JOptionPane.showMessageDialog(this, "Inserisci il codice della seduta!");
+                else aggiornaTabellaStudenti(codiceCercato);
+            });
+        }
+
+        if (btnMostraCommissione != null) {
+            btnMostraCommissione.addActionListener(e -> {
+                String codiceCercato = txtRicercaSeduta.getText();
+                if (codiceCercato.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Inserisci il codice della seduta prima di cercare!");
+                } else {
+                    aggiornaTabellaCommissione(codiceCercato);
+                }
+            });
+        }
+
+        aggiornaTabellaSedute();
+        aggiornaTabellaDocenti();
     }
+
     private void aggiornaTabellaStudenti(String codiceSeduta) {
         try {
             String[] colonne = {"Matricola", "Nome", "Cognome", "Titolo Tesi"};
-            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(colonne, 0);
+            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(colonne, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) { return false; }
+            };
             for (String[] riga : controller.getStudentiPerSeduta(codiceSeduta)) {
                 model.addRow(riga);
             }
             if (tblStudentiSeduta != null) tblStudentiSeduta.setModel(model);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Errore caricamento lista: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Errore caricamento: " + ex.getMessage());
         }
     }
 
+    private void aggiornaTabellaCommissione(String codiceSeduta) {
+        try {
+            String[] colonne = {"SSN", "Nome", "Cognome"};
+            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(colonne, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) { return false; }
+            };
+            for (String[] riga : controller.getDocentiPerCommissione(codiceSeduta)) {
+                model.addRow(riga);
+            }
+            if (tblCommissione != null) tblCommissione.setModel(model);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Errore caricamento: " + ex.getMessage());
+        }
+    }
 
+    private void aggiornaTabellaSedute() {
+        try {
+            String[] colonne = {"Codice Seduta", "Data", "Ora", "Luogo"};
+            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(colonne, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) { return false; }
+            };
+            for (String[] riga : controller.getElencoSeduteDisponibili()) {
+                model.addRow(riga);
+            }
+            if (tblSedute != null) {
+                tblSedute.setModel(model);
+                for(java.awt.event.MouseListener ml : tblSedute.getMouseListeners()) tblSedute.removeMouseListener(ml);
+
+                tblSedute.addMouseListener(new java.awt.event.MouseAdapter() {
+                    @Override
+                    public void mouseClicked(java.awt.event.MouseEvent e) {
+                        int r = tblSedute.getSelectedRow();
+                        if (r != -1) {
+                            String cod = tblSedute.getValueAt(r, 0).toString();
+                            if(txtCodiceSedutaCommissione != null) txtCodiceSedutaCommissione.setText(cod);
+                            if(txtRicercaSeduta != null) txtRicercaSeduta.setText(cod);
+                        }
+                    }
+                });
+            }
+        } catch (Exception ex) { ex.printStackTrace(); }
+    }
+
+    private void aggiornaTabellaDocenti() {
+        try {
+            String[] colonne = {"SSN", "Nome", "Cognome"};
+            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(colonne, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) { return false; }
+            };
+            for (String[] riga : controller.getTuttiDocenti()) {
+                model.addRow(riga);
+            }
+            if (tblDocenti != null) {
+                tblDocenti.setModel(model);
+                for(java.awt.event.MouseListener ml : tblDocenti.getMouseListeners()) tblDocenti.removeMouseListener(ml);
+
+                tblDocenti.addMouseListener(new java.awt.event.MouseAdapter() {
+                    @Override
+                    public void mouseClicked(java.awt.event.MouseEvent e) {
+                        int r = tblDocenti.getSelectedRow();
+                        if (r != -1 && txtSsnDocenteCommissione != null) {
+                            txtSsnDocenteCommissione.setText(tblDocenti.getValueAt(r, 0).toString());
+                        }
+                    }
+                });
+            }
+        } catch (Exception ex) { ex.printStackTrace(); }
+    }
 }
