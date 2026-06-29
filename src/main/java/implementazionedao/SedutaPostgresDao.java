@@ -1,4 +1,5 @@
 package implementazionedao;
+
 import dao.SedutaDAO;
 import database_connection.ConnessioneDatabase;
 import java.sql.*;
@@ -7,6 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SedutaPostgresDao implements SedutaDAO {
+
+    // FIX SONAR: Costanti per evitare la duplicazione delle stringhe nei ResultSet
+    private static final String COL_SSN = "ssn";
+    private static final String COL_NOME = "nome";
+    private static final String COL_COGNOME = "cognome";
+
     @Override
     public void inserisciSedutaDB(LocalDate data, String ora, String luogo, String codice) throws SQLException {
         String query = "INSERT INTO seduta_laurea (codice, data_seduta, ora, luogo) VALUES (?, ?, ?, ?)";
@@ -53,7 +60,14 @@ public class SedutaPostgresDao implements SedutaDAO {
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, codiceSeduta);
             try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) risultati.add(new String[]{rs.getString("matricola"), rs.getString("nome"), rs.getString("cognome"), rs.getString("titolo")});
+                while (rs.next()) {
+                    risultati.add(new String[]{
+                            rs.getString("matricola"),
+                            rs.getString(COL_NOME),
+                            rs.getString(COL_COGNOME),
+                            rs.getString("titolo")
+                    });
+                }
             }
         }
         return risultati;
@@ -66,7 +80,14 @@ public class SedutaPostgresDao implements SedutaDAO {
         try (Connection conn = ConnessioneDatabase.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) risultati.add(new String[]{rs.getString("codice"), rs.getDate("data_seduta").toString(), rs.getString("ora"), rs.getString("luogo")});
+            while (rs.next()) {
+                risultati.add(new String[]{
+                        rs.getString("codice"),
+                        rs.getDate("data_seduta").toString(),
+                        rs.getString("ora"),
+                        rs.getString("luogo")
+                });
+            }
         }
         return risultati;
     }
@@ -74,13 +95,16 @@ public class SedutaPostgresDao implements SedutaDAO {
     @Override
     public List<String[]> getTuttiDocentiDB() throws SQLException {
         List<String[]> risultati = new ArrayList<>();
-        // FIX SONAR & CASE-SENSITIVE: Usiamo UPPER per evitare disallineamenti tra 'Docente' e 'DOCENTE'
         String query = "SELECT ssn, nome, cognome FROM utente WHERE UPPER(ruolo) = 'DOCENTE' OR UPPER(ruolo) = 'COORDINATORE'";
         try (Connection conn = ConnessioneDatabase.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                risultati.add(new String[]{rs.getString("ssn"), rs.getString("nome"), rs.getString("cognome")});
+                risultati.add(new String[]{
+                        rs.getString(COL_SSN),
+                        rs.getString(COL_NOME),
+                        rs.getString(COL_COGNOME)
+                });
             }
         }
         return risultati;
@@ -95,14 +119,17 @@ public class SedutaPostgresDao implements SedutaDAO {
             pstmt.setString(1, codiceSeduta);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    risultati.add(new String[]{rs.getString("ssn"), rs.getString("nome"), rs.getString("cognome")});
+                    risultati.add(new String[]{
+                            rs.getString(COL_SSN),
+                            rs.getString(COL_NOME),
+                            rs.getString(COL_COGNOME)
+                    });
                 }
             }
         }
         return risultati;
     }
 
-    // --- NUOVO METODO IMPLEMENTATO ---
     @Override
     public boolean esisteDocenteDB(String ssnDocente) throws SQLException {
         String query = "SELECT COUNT(*) FROM utente WHERE ssn = ? AND (UPPER(ruolo) = 'DOCENTE' OR UPPER(ruolo) = 'COORDINATORE')";
