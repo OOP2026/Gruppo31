@@ -2,16 +2,18 @@ package implementazionedao;
 import dao.SedutaDAO;
 import database_connection.ConnessioneDatabase;
 import java.sql.*;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SedutaPostgresDao implements SedutaDAO {
     @Override
-    public void inserisciSedutaDB(Date data, String ora, String luogo, String codice) throws SQLException {
+    public void inserisciSedutaDB(LocalDate data, String ora, String luogo, String codice) throws SQLException {
         String query = "INSERT INTO seduta_laurea (codice, data_seduta, ora, luogo) VALUES (?, ?, ?, ?)";
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, codice);
-            pstmt.setDate(2, new java.sql.Date(data.getTime()));
+            pstmt.setDate(2, java.sql.Date.valueOf(data));
             pstmt.setString(3, ora);
             pstmt.setString(4, luogo);
             pstmt.executeUpdate();
@@ -44,8 +46,8 @@ public class SedutaPostgresDao implements SedutaDAO {
     }
 
     @Override
-    public java.util.List<String[]> getStudentiPerSedutaDB(String codiceSeduta) throws SQLException {
-        java.util.List<String[]> risultati = new java.util.ArrayList<>();
+    public List<String[]> getStudentiPerSedutaDB(String codiceSeduta) throws SQLException {
+        List<String[]> risultati = new ArrayList<>();
         String query = "SELECT u.matricola, u.nome, u.cognome, t.titolo FROM prenotazione_laurea p JOIN utente u ON p.studente_username = u.username JOIN tesi t ON p.tesi_id = t.id WHERE p.seduta_codice = ?";
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -58,8 +60,8 @@ public class SedutaPostgresDao implements SedutaDAO {
     }
 
     @Override
-    public java.util.List<String[]> getSeduteDisponibiliDB() throws SQLException {
-        java.util.List<String[]> risultati = new java.util.ArrayList<>();
+    public List<String[]> getSeduteDisponibiliDB() throws SQLException {
+        List<String[]> risultati = new ArrayList<>();
         String query = "SELECT codice, data_seduta, ora, luogo FROM seduta_laurea";
         try (Connection conn = ConnessioneDatabase.getConnection();
              Statement stmt = conn.createStatement();
@@ -70,9 +72,10 @@ public class SedutaPostgresDao implements SedutaDAO {
     }
 
     @Override
-    public java.util.List<String[]> getTuttiDocentiDB() throws SQLException {
-        java.util.List<String[]> risultati = new java.util.ArrayList<>();
-        String query = "SELECT ssn, nome, cognome FROM utente WHERE ruolo = 'DOCENTE' OR ruolo = 'COORDINATORE'";
+    public List<String[]> getTuttiDocentiDB() throws SQLException {
+        List<String[]> risultati = new ArrayList<>();
+        // FIX SONAR & CASE-SENSITIVE: Usiamo UPPER per evitare disallineamenti tra 'Docente' e 'DOCENTE'
+        String query = "SELECT ssn, nome, cognome FROM utente WHERE UPPER(ruolo) = 'DOCENTE' OR UPPER(ruolo) = 'COORDINATORE'";
         try (Connection conn = ConnessioneDatabase.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -84,8 +87,8 @@ public class SedutaPostgresDao implements SedutaDAO {
     }
 
     @Override
-    public java.util.List<String[]> getDocentiPerCommissioneDB(String codiceSeduta) throws SQLException {
-        java.util.List<String[]> risultati = new java.util.ArrayList<>();
+    public List<String[]> getDocentiPerCommissioneDB(String codiceSeduta) throws SQLException {
+        List<String[]> risultati = new ArrayList<>();
         String query = "SELECT u.ssn, u.nome, u.cognome FROM commissione c JOIN utente u ON c.docente_ssn = u.ssn WHERE c.seduta_codice = ?";
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -97,5 +100,19 @@ public class SedutaPostgresDao implements SedutaDAO {
             }
         }
         return risultati;
+    }
+
+    // --- NUOVO METODO IMPLEMENTATO ---
+    @Override
+    public boolean esisteDocenteDB(String ssnDocente) throws SQLException {
+        String query = "SELECT COUNT(*) FROM utente WHERE ssn = ? AND (UPPER(ruolo) = 'DOCENTE' OR UPPER(ruolo) = 'COORDINATORE')";
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, ssnDocente);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1) > 0;
+            }
+        }
+        return false;
     }
 }

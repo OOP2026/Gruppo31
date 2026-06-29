@@ -2,7 +2,9 @@ package gui;
 
 import controller.Controller;
 import javax.swing.*;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class CoordinatoreFrame extends JFrame {
     private transient Controller controller;
@@ -56,8 +58,9 @@ public class CoordinatoreFrame extends JFrame {
                     return;
                 }
 
-                java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd");
-                java.util.Date dataFormattata = format.parse(dataStr);
+                // Utilizzo della nuova API java.time
+                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate dataFormattata = LocalDate.parse(dataStr, format);
 
                 controller.coordinatoreInserisciSeduta(dataFormattata, ora, luogo, codice);
                 JOptionPane.showMessageDialog(this, "Seduta inserita nel calendario accademico!");
@@ -69,7 +72,7 @@ public class CoordinatoreFrame extends JFrame {
                 txtLuogoSeduta.setText("");
                 txtCodiceSeduta.setText("");
 
-            } catch (java.text.ParseException ex) {
+            } catch (DateTimeParseException ex) {
                 JOptionPane.showMessageDialog(this, "Formato data errato! Usa AAAA-MM-GG (es. 2026-07-20)", "Errore Data", JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Errore DB: " + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
@@ -89,7 +92,6 @@ public class CoordinatoreFrame extends JFrame {
                 controller.coordinatoreAggiungiDocenteACommissione(ssnDocente, codiceSeduta);
                 JOptionPane.showMessageDialog(this, "Docente aggiunto alla commissione con successo!");
 
-                // Aggiorna la tabella della commissione in tempo reale se si sta visualizzando quella seduta
                 aggiornaTabellaCommissione(codiceSeduta);
 
             } catch (Exception ex) {

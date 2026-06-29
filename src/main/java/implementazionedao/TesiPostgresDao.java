@@ -2,7 +2,9 @@ package implementazionedao;
 import dao.TesiDAO;
 import database_connection.ConnessioneDatabase;
 import java.sql.*;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TesiPostgresDao implements TesiDAO {
     @Override
@@ -18,11 +20,11 @@ public class TesiPostgresDao implements TesiDAO {
     }
 
     @Override
-    public void prenotaSedutaDB(Date data, String usernameStudente, String codiceSeduta) throws SQLException {
+    public void prenotaSedutaDB(LocalDate data, String usernameStudente, String codiceSeduta) throws SQLException {
         String query = "INSERT INTO prenotazione_laurea (data_prenotazione, studente_username, seduta_codice, tesi_id) VALUES (?, ?, ?, (SELECT id FROM tesi WHERE studente_username = ? ORDER BY id DESC LIMIT 1))";
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setDate(1, new java.sql.Date(data.getTime()));
+            pstmt.setDate(1, java.sql.Date.valueOf(data));
             pstmt.setString(2, usernameStudente);
             pstmt.setString(3, codiceSeduta);
             pstmt.setString(4, usernameStudente);
@@ -42,10 +44,9 @@ public class TesiPostgresDao implements TesiDAO {
         }
     }
 
-    // --- LA QUERY POTENZIATA ---
     @Override
-    public java.util.List<String[]> getTesiPerDocenteDB(String ssnDocente) throws SQLException {
-        java.util.List<String[]> risultati = new java.util.ArrayList<>();
+    public List<String[]> getTesiPerDocenteDB(String ssnDocente) throws SQLException {
+        List<String[]> risultati = new ArrayList<>();
         String query = "SELECT u.matricola, u.nome || ' ' || u.cognome AS studente, t.titolo, t.percorso_file, t.stato " +
                 "FROM tesi t JOIN utente u ON t.studente_username = u.username " +
                 "JOIN richiesta_tirocinio rt ON u.username = rt.studente_username " +
@@ -58,5 +59,19 @@ public class TesiPostgresDao implements TesiDAO {
             }
         }
         return risultati;
+    }
+
+    // --- NUOVO METODO PER IL BLOCCO DELLE TESI MULTIPLE ---
+    @Override
+    public boolean haTesiInAttesaDB(String username) throws SQLException {
+        String query = "SELECT COUNT(*) FROM tesi WHERE studente_username = ? AND stato = 'IN_ATTESA'";
+        try (Connection conn = ConnessioneDatabase.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1) > 0;
+            }
+        }
+        return false;
     }
 }

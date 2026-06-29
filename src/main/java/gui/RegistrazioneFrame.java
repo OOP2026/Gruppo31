@@ -1,13 +1,11 @@
 package gui;
 
 import controller.Controller;
+import model.DatiRegistrazione;
 import javax.swing.*;
 
 public class RegistrazioneFrame extends JFrame {
-
     private transient Controller controller;
-
-    // Queste variabili sono collegate in automatico al tuo file .form dall'IDE
     private JPanel panel1;
     private JTextField txtUsername;
     private JPasswordField txtPassword;
@@ -22,36 +20,28 @@ public class RegistrazioneFrame extends JFrame {
 
     public RegistrazioneFrame(Controller controller) {
         this.controller = controller;
-
         setContentPane(panel1);
         setTitle("Sistema Gestione Lauree - Registrazione");
         setSize(400, 450);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Se non hai aggiunto i ruoli nel designer grafico, li inseriamo qui:
         if(cmbRuolo.getItemCount() == 0) {
             cmbRuolo.addItem("Studente");
             cmbRuolo.addItem("Docente");
+            cmbRuolo.addItem("Coordinatore");
         }
 
-        // =================================================================
-        // LOGICA DI DINAMICITÀ DEI CAMPI
-        // =================================================================
         cmbRuolo.addActionListener(e -> {
-            boolean isStudente = "Studente".equals(cmbRuolo.getSelectedItem());
+            String ruolo = (String) cmbRuolo.getSelectedItem();
+            boolean isStudente = "Studente".equals(ruolo);
             txtMatricola.setEnabled(isStudente);
             txtSsn.setEnabled(!isStudente);
             if (isStudente) txtSsn.setText("");
             else txtMatricola.setText("");
         });
-
-        // Di default parte su Studente, quindi disattiviamo SSN all'avvio
         txtSsn.setEnabled(false);
 
-        // =================================================================
-        // AZIONE DI SALVATAGGIO
-        // =================================================================
         btnSalva.addActionListener(e -> {
             String user = txtUsername.getText();
             String pass = new String(txtPassword.getPassword());
@@ -62,30 +52,26 @@ public class RegistrazioneFrame extends JFrame {
             String mat = txtMatricola.getText();
             String ssn = txtSsn.getText();
 
-            // Validazione campi obbligatori
             if (user.isEmpty() || pass.isEmpty() || mail.isEmpty() || nome.isEmpty() || cognome.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Tutti i campi principali sono obbligatori!", "Errore validazione", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             try {
-                controller.effettuaRegistrazione(user, pass, mail, nome, cognome, ruolo, mat, ssn);
-                JOptionPane.showMessageDialog(this, "Registrazione completata con successo!");
-
+                // Utilizzo del DTO per risolvere il code smell dei troppi parametri
+                DatiRegistrazione dati = new DatiRegistrazione(user, pass, mail, nome, cognome, ruolo, mat, ssn);
+                controller.effettuaRegistrazione(dati);
+                JOptionPane.showMessageDialog(this, "Registrazione completata!");
                 new LoginFrame(controller).setVisible(true);
                 dispose();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Errore durante la registrazione: " + ex.getMessage(), "Errore DB", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Errore: " + ex.getMessage(), "Errore DB", JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        // =================================================================
-        // AZIONE ANNULLA
-        // =================================================================
         btnAnnulla.addActionListener(e -> {
             new LoginFrame(controller).setVisible(true);
             dispose();
         });
-
     }
 }
