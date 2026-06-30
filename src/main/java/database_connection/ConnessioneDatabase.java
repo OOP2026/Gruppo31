@@ -5,45 +5,33 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * Classe di utilità per la gestione della connessione al database PostgreSQL.
- * Fornisce un punto di accesso centralizzato per ottenere una connessione attiva,
- * isolando le credenziali e la stringa di connessione (URL) dal resto della logica applicativa.
+ * Classe di utilità per gestire la connessione al database PostgreSQL.
+ * Il suo unico scopo è fornirci un "ponte" (Connection) verso il database,
+ * tenendo separate le credenziali dalla logica del programma.
  */
 public class ConnessioneDatabase {
 
-    // URL di connessione standard per PostgreSQL in esecuzione in locale
     private static final String URL = "jdbc:postgresql://localhost:5432/gestione_lauree";
-
-    // Nome utente di default del database
     private static final String USER = "postgres";
 
     /**
-     * Costruttore privato intenzionale.
-     * Essendo una classe di sola utilità che espone metodi statici,
-     * impediamo l'istanziazione di oggetti di questo tipo (es. new ConnessioneDatabase())
-     * per mantenere il codice pulito ed evitare sprechi di memoria.
+     * Costruttore privato.
+     * Essendo una classe con solo metodi statici, non ha senso istanziarla
+     * con "new ConnessioneDatabase()". Quindi lo blocchiamo per avere codice pulito.
      */
     private ConnessioneDatabase() {}
 
     /**
-     * Stabilisce e restituisce una connessione attiva con il database.
-     * Implementa una best practice di sicurezza: la password non è scritta "in chiaro"
-     * nel codice sorgente, ma viene recuperata dinamicamente dalle variabili d'ambiente
-     * del sistema operativo (DB_PASSWORD).
-     *
-     * @return un oggetto Connection pronto per eseguire query SQL
-     * @throws SQLException se la connessione fallisce o se la variabile d'ambiente manca
+     * Stabilisce la connessione col DB pescando la password dalle variabili di sistema.
+     * Questa è una chicca di sicurezza: non scriviamo la password in chiaro nel codice!
+     * * @return L'oggetto Connection per lanciare le query
+     * @throws SQLException Se il DB è spento, irraggiungibile o manca la password
      */
     public static Connection getConnection() throws SQLException {
-        // Recupero sicuro della password di sistema
         String password = System.getenv("DB_PASSWORD");
-
-        // Controllo di sicurezza: impediamo l'accesso se la configurazione dell'ambiente è assente
         if (password == null || password.trim().isEmpty()) {
             throw new SQLException("Errore di sicurezza: Variabile d'ambiente DB_PASSWORD non configurata.");
         }
-
-        // Il DriverManager si occupa di caricare il driver JDBC e stabilire il ponte con PostgreSQL
         return DriverManager.getConnection(URL, USER, password);
     }
 }

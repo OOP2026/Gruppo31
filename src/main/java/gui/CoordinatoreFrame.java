@@ -11,9 +11,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+/**
+ * Questa è l'interfaccia dedicata al Coordinatore del corso di laurea.
+ * Da qui può inserire le nuove sedute [cite: 552] e formare le commissioni
+ * controllando che i docenti abbiano i requisiti giusti[cite: 554].
+ */
 public class CoordinatoreFrame extends JFrame {
 
-    // FIX SONAR: Costanti per evitare la duplicazione delle stringhe
+    // Costanti per evitare la duplicazione delle stringhe (SonarQube ringrazia)
     private static final String TITOLO_ERRORE = "Errore";
     private static final String PREFISSO_ERRORE_DB = "Errore DB: ";
     private static final String MSG_INSERISCI_CODICE = "Inserisci il codice della seduta!";
@@ -42,6 +47,12 @@ public class CoordinatoreFrame extends JFrame {
     private JTable tblDocenti;
     private JButton btnHome;
 
+    /**
+     * Costruttore della schermata del Coordinatore.
+     * Prepara la finestra, collega i bottoni e carica subito i dati nelle tabelle.
+     *
+     * @param controller Il "motore" che passa i dati dal DB all'interfaccia
+     */
     public CoordinatoreFrame(Controller controller) {
         this.controller = controller;
         setContentPane(panel1);
@@ -50,22 +61,22 @@ public class CoordinatoreFrame extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // FIX SONAR: Spacchettiamo il costruttore delegando la logica a un metodo separato
+        // Chiamiamo metodi separati per non avere un costruttore kilometrico
         inizializzaAzioniBottoni();
-
         aggiornaTabellaSedute();
         aggiornaTabellaDocenti();
     }
 
-    // --- METODI DI INIZIALIZZAZIONE (Riducono la Cognitive Complexity) ---
-
+    /**
+     * Associa ad ogni bottone della UI l'azione corrispondente.
+     * Invece di scrivere mille righe qui, richiamiamo le funzioni specifiche.
+     */
     private void inizializzaAzioniBottoni() {
         if(btnHome != null) {
             btnHome.addActionListener(e -> tornaAllaHome());
         }
         btnCreaSeduta.addActionListener(e -> gestisciCreazioneSeduta());
         btnComponiCommissione.addActionListener(e -> gestisciComposizioneCommissione());
-
         if (btnCercaStudenti != null) {
             btnCercaStudenti.addActionListener(e -> gestisciRicercaStudenti());
         }
@@ -74,11 +85,18 @@ public class CoordinatoreFrame extends JFrame {
         }
     }
 
+    /**
+     * Chiude la finestra corrente e ci riporta alla schermata di Login.
+     */
     private void tornaAllaHome() {
         new LoginFrame(controller).setVisible(true);
         dispose();
     }
 
+    /**
+     * Raccoglie i dati dai textfield e chiede al controller di creare una nuova seduta di laurea.
+     * Come richiede la traccia, ogni seduta ha una data, un'ora e un luogo[cite: 552].
+     */
     private void gestisciCreazioneSeduta() {
         try {
             String dataStr = txtDataSeduta.getText();
@@ -97,7 +115,6 @@ public class CoordinatoreFrame extends JFrame {
 
             aggiornaTabellaSedute();
             svuotaCampiSeduta();
-
         } catch (DateTimeParseException ex) {
             JOptionPane.showMessageDialog(this, "Formato data errato! Usa AAAA-MM-GG", TITOLO_ERRORE, JOptionPane.ERROR_MESSAGE);
         } catch (SQLException ex) {
@@ -105,6 +122,10 @@ public class CoordinatoreFrame extends JFrame {
         }
     }
 
+    /**
+     * Svuota le caselle di testo dopo aver creato una seduta.
+     * Serve solo a mantenere l'interfaccia pulita.
+     */
     private void svuotaCampiSeduta() {
         txtDataSeduta.setText("");
         txtOraSeduta.setText("");
@@ -112,6 +133,10 @@ public class CoordinatoreFrame extends JFrame {
         txtCodiceSeduta.setText("");
     }
 
+    /**
+     * Aggiunge un docente selezionato alla commissione di una determinata seduta.
+     * Il Controller si occuperà di verificare se il prof ha i requisiti[cite: 554].
+     */
     private void gestisciComposizioneCommissione() {
         try {
             String ssnDocente = txtSsnDocenteCommissione.getText();
@@ -131,20 +156,29 @@ public class CoordinatoreFrame extends JFrame {
         }
     }
 
+    /**
+     * Cerca tutti gli studenti assegnati a una seduta e aggiorna la tabella.
+     */
     private void gestisciRicercaStudenti() {
         String codiceCercato = txtRicercaSeduta.getText();
         if (codiceCercato.isEmpty()) JOptionPane.showMessageDialog(this, MSG_INSERISCI_CODICE);
         else aggiornaTabellaStudenti(codiceCercato);
     }
 
+    /**
+     * Cerca i docenti che fanno parte della commissione di una determinata seduta.
+     */
     private void gestisciMostraCommissione() {
         String codiceCercato = txtRicercaSeduta.getText();
         if (codiceCercato.isEmpty()) JOptionPane.showMessageDialog(this, MSG_INSERISCI_CODICE);
         else aggiornaTabellaCommissione(codiceCercato);
     }
 
-    // --- METODI DELLE TABELLE ---
-
+    /**
+     * Ricrea le righe della tabella degli studenti per la seduta indicata.
+     *
+     * @param codiceSeduta Il codice della seduta da cercare
+     */
     private void aggiornaTabellaStudenti(String codiceSeduta) {
         try {
             String[] colonne = {"Matricola", COL_NOME, COL_COGNOME, "Titolo Tesi"};
@@ -156,6 +190,11 @@ public class CoordinatoreFrame extends JFrame {
         }
     }
 
+    /**
+     * Ricrea le righe della tabella della commissione.
+     *
+     * @param codiceSeduta Il codice della seduta di cui vogliamo vedere la commissione
+     */
     private void aggiornaTabellaCommissione(String codiceSeduta) {
         try {
             String[] colonne = {COL_SSN, COL_NOME, COL_COGNOME};
@@ -167,6 +206,9 @@ public class CoordinatoreFrame extends JFrame {
         }
     }
 
+    /**
+     * Ricarica l'elenco di tutte le sedute disponibili nel sistema.
+     */
     private void aggiornaTabellaSedute() {
         try {
             String[] colonne = {"Codice Seduta", "Data", "Ora", "Luogo"};
@@ -174,13 +216,16 @@ public class CoordinatoreFrame extends JFrame {
             for (String[] riga : controller.getElencoSeduteDisponibili()) model.addRow(riga);
             if (tblSedute != null) {
                 tblSedute.setModel(model);
-                aggiungiListenerTabellaSedute(); // Spacchettato per ridurre la complessità
+                aggiungiListenerTabellaSedute();
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, PREFISSO_ERRORE_DB + ex.getMessage(), TITOLO_ERRORE, JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    /**
+     * Ricarica l'elenco di tutti i docenti e coordinatori disponibili.
+     */
     private void aggiornaTabellaDocenti() {
         try {
             String[] colonne = {COL_SSN, COL_NOME, COL_COGNOME};
@@ -188,15 +233,20 @@ public class CoordinatoreFrame extends JFrame {
             for (String[] riga : controller.getTuttiDocenti()) model.addRow(riga);
             if (tblDocenti != null) {
                 tblDocenti.setModel(model);
-                aggiungiListenerTabellaDocenti(); // Spacchettato per ridurre la complessità
+                aggiungiListenerTabellaDocenti();
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, PREFISSO_ERRORE_DB + ex.getMessage(), TITOLO_ERRORE, JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    // --- HELPER METHODS PER LE TABELLE ---
-
+    /**
+     * Utility per creare un modello di tabella che non permetta all'utente
+     * di modificare le celle facendo doppio click (isCellEditable = false).
+     *
+     * @param colonne L'array di stringhe con le intestazioni delle colonne
+     * @return Il modello pronto per essere assegnato alla JTable
+     */
     private DefaultTableModel creaModelloTabella(String[] colonne) {
         return new DefaultTableModel(colonne, 0) {
             @Override
@@ -204,6 +254,10 @@ public class CoordinatoreFrame extends JFrame {
         };
     }
 
+    /**
+     * Aggiunge l'evento di click alla tabella delle sedute.
+     * Se ci clicchi, riempie in automatico le caselline di testo col codice della seduta.
+     */
     private void aggiungiListenerTabellaSedute() {
         for(MouseListener ml : tblSedute.getMouseListeners()) tblSedute.removeMouseListener(ml);
         tblSedute.addMouseListener(new MouseAdapter() {
@@ -219,6 +273,10 @@ public class CoordinatoreFrame extends JFrame {
         });
     }
 
+    /**
+     * Aggiunge l'evento di click alla tabella dei docenti.
+     * Se ci clicchi, preleva l'SSN del professore e lo mette nel form per la commissione.
+     */
     private void aggiungiListenerTabellaDocenti() {
         for(MouseListener ml : tblDocenti.getMouseListeners()) tblDocenti.removeMouseListener(ml);
         tblDocenti.addMouseListener(new MouseAdapter() {

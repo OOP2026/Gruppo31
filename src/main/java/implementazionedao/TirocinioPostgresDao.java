@@ -7,14 +7,19 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Gestisce sul database tutte le operazioni relative ai tirocini (proposte dai prof e chieste dagli studenti).
+ */
 public class TirocinioPostgresDao implements TirocinioDAO {
 
-    // FIX SONAR: Costanti per evitare stringhe duplicate nei ResultSet e nelle query
     private static final String COL_ID = "id";
     private static final String COL_ARG = "argomento";
     private static final String COL_SSN_DOC = "docente_ssn";
     private static final String COL_STATO = "stato";
 
+    /**
+     * Salva un tirocinio universitario (interno).
+     */
     @Override
     public void aggiungiTirocinioDB(int id, String argomento, String ssnDocente) throws SQLException {
         String query = "INSERT INTO tirocinio (id, argomento, is_esterno, docente_ssn) VALUES (?, ?, false, ?)";
@@ -27,6 +32,9 @@ public class TirocinioPostgresDao implements TirocinioDAO {
         }
     }
 
+    /**
+     * Salva un tirocinio esterno, aggiungendo anche i dati dell'azienda e del tutor di riferimento.
+     */
     @Override
     public void aggiungiTirocinioEsternoDB(int id, String argomento, String azienda, String referenteAziendale, String ssnDocente) throws SQLException {
         String query = "INSERT INTO tirocinio (id, argomento, azienda, referente_aziendale, is_esterno, docente_ssn) VALUES (?, ?, ?, ?, true, ?)";
@@ -41,6 +49,9 @@ public class TirocinioPostgresDao implements TirocinioDAO {
         }
     }
 
+    /**
+     * Registra la candidatura dello studente a un tirocinio.
+     */
     @Override
     public void richiediTirocinioDB(LocalDate data, String userS, String ssnD, int idT) throws SQLException {
         String query = "INSERT INTO richiesta_tirocinio (data_richiesta, studente_username, docente_ssn, tirocinio_id) VALUES (?, ?, ?, ?)";
@@ -54,6 +65,9 @@ public class TirocinioPostgresDao implements TirocinioDAO {
         }
     }
 
+    /**
+     * Aggiorna lo stato (Accettato/Rifiutato) della richiesta in base alla decisione del professore.
+     */
     @Override
     public void valutaRichiestaDB(String matricola, int idT, String stato) throws SQLException {
         String query = "UPDATE richiesta_tirocinio SET stato = ? WHERE studente_username = (SELECT username FROM utente WHERE matricola = ?) AND tirocinio_id = ?";
@@ -66,24 +80,18 @@ public class TirocinioPostgresDao implements TirocinioDAO {
         }
     }
 
+    // Metodi per popolare le tabelle delle GUI
     @Override
     public List<String[]> getTirociniDisponibiliDB() throws SQLException {
         List<String[]> risultati = new ArrayList<>();
-        String query = "SELECT t.id, t.argomento, t.is_esterno, t.azienda, t.docente_ssn, u.nome, u.cognome " +
-                "FROM tirocinio t JOIN utente u ON t.docente_ssn = u.ssn";
+        String query = "SELECT t.id, t.argomento, t.is_esterno, t.azienda, t.docente_ssn, u.nome, u.cognome FROM tirocinio t JOIN utente u ON t.docente_ssn = u.ssn";
         try (Connection conn = ConnessioneDatabase.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
                 String tipo = rs.getBoolean("is_esterno") ? "Esterno (" + rs.getString("azienda") + ")" : "Interno";
                 String prof = rs.getString("nome") + " " + rs.getString("cognome");
-                risultati.add(new String[]{
-                        String.valueOf(rs.getInt(COL_ID)),
-                        rs.getString(COL_ARG),
-                        tipo,
-                        rs.getString(COL_SSN_DOC),
-                        prof
-                });
+                risultati.add(new String[]{ String.valueOf(rs.getInt(COL_ID)), rs.getString(COL_ARG), tipo, rs.getString(COL_SSN_DOC), prof });
             }
         }
         return risultati;
@@ -92,19 +100,13 @@ public class TirocinioPostgresDao implements TirocinioDAO {
     @Override
     public List<String[]> getRichiesteStudenteDB(String username) throws SQLException {
         List<String[]> risultati = new ArrayList<>();
-        String query = "SELECT t.argomento, u.nome || ' ' || u.cognome AS relatore, r.stato " +
-                "FROM richiesta_tirocinio r JOIN tirocinio t ON r.tirocinio_id = t.id " +
-                "JOIN utente u ON r.docente_ssn = u.ssn WHERE r.studente_username = ?";
+        String query = "SELECT t.argomento, u.nome || ' ' || u.cognome AS relatore, r.stato FROM richiesta_tirocinio r JOIN tirocinio t ON r.tirocinio_id = t.id JOIN utente u ON r.docente_ssn = u.ssn WHERE r.studente_username = ?";
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, username);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    risultati.add(new String[]{
-                            rs.getString(COL_ARG),
-                            rs.getString("relatore"),
-                            rs.getString(COL_STATO)
-                    });
+                    risultati.add(new String[]{ rs.getString(COL_ARG), rs.getString("relatore"), rs.getString(COL_STATO) });
                 }
             }
         }
@@ -114,27 +116,23 @@ public class TirocinioPostgresDao implements TirocinioDAO {
     @Override
     public List<String[]> getRichiestePerDocenteDB(String ssnDocente) throws SQLException {
         List<String[]> risultati = new ArrayList<>();
-        String query = "SELECT u.matricola, u.nome || ' ' || u.cognome AS studente, t.id, t.argomento, r.stato " +
-                "FROM richiesta_tirocinio r JOIN utente u ON r.studente_username = u.username " +
-                "JOIN tirocinio t ON r.tirocinio_id = t.id WHERE r.docente_ssn = ?";
+        String query = "SELECT u.matricola, u.nome || ' ' || u.cognome AS studente, t.id, t.argomento, r.stato FROM richiesta_tirocinio r JOIN utente u ON r.studente_username = u.username JOIN tirocinio t ON r.tirocinio_id = t.id WHERE r.docente_ssn = ?";
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, ssnDocente);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    risultati.add(new String[]{
-                            rs.getString("matricola"),
-                            rs.getString("studente"),
-                            String.valueOf(rs.getInt(COL_ID)),
-                            rs.getString(COL_ARG),
-                            rs.getString(COL_STATO)
-                    });
+                    risultati.add(new String[]{ rs.getString("matricola"), rs.getString("studente"), String.valueOf(rs.getInt(COL_ID)), rs.getString(COL_ARG), rs.getString(COL_STATO) });
                 }
             }
         }
         return risultati;
     }
 
+    /**
+     * Verifica di business per la tesi: lo studente ha almeno un tirocinio in stato "ACCETTATO"?
+     * Ritorna true se lo ha, permettendo così il caricamento dell'elaborato.
+     */
     @Override
     public boolean haTirocinioApprovatoDB(String username) throws SQLException {
         String query = "SELECT COUNT(*) FROM richiesta_tirocinio WHERE studente_username = ? AND stato = 'ACCETTATO'";

@@ -7,13 +7,19 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementazione concreta per gestire le query delle Sedute su Postgres.
+ */
 public class SedutaPostgresDao implements SedutaDAO {
 
-    // FIX SONAR: Costanti per evitare la duplicazione delle stringhe nei ResultSet
+    // Costanti per mappare le colonne del DB ed evitare refusi
     private static final String COL_SSN = "ssn";
     private static final String COL_NOME = "nome";
     private static final String COL_COGNOME = "cognome";
 
+    /**
+     * Salva una nuova seduta nel DB (operazione riservata al coordinatore).
+     */
     @Override
     public void inserisciSedutaDB(LocalDate data, String ora, String luogo, String codice) throws SQLException {
         String query = "INSERT INTO seduta_laurea (codice, data_seduta, ora, luogo) VALUES (?, ?, ?, ?)";
@@ -27,6 +33,9 @@ public class SedutaPostgresDao implements SedutaDAO {
         }
     }
 
+    /**
+     * Aggiunge il record che lega un docente alla commissione di una certa seduta.
+     */
     @Override
     public void aggiungiDocenteACommissioneDB(String ssnD, String codS) throws SQLException {
         String query = "INSERT INTO commissione (seduta_codice, docente_ssn) VALUES (?, ?)";
@@ -38,9 +47,17 @@ public class SedutaPostgresDao implements SedutaDAO {
         }
     }
 
+    /**
+     * Controlla se il docente può stare in commissione.
+     * Da traccia: deve essere relatore di almeno un candidato con tesi e tirocinio approvati per QUELLA seduta.
+     * * @return true se idoneo, false se non ha candidati in questa seduta
+     */
     @Override
     public boolean verificaDocenteValidoPerCommissione(String ssnDocente, String codiceSeduta) throws SQLException {
-        String query = "SELECT COUNT(*) FROM prenotazione_laurea pl JOIN tesi t ON pl.studente_username = t.studente_username JOIN richiesta_tirocinio rt ON t.studente_username = rt.studente_username WHERE pl.seduta_codice = ? AND rt.docente_ssn = ? AND t.stato = 'ACCETTATO' AND rt.stato = 'ACCETTATO'";
+        String query = "SELECT COUNT(*) FROM prenotazione_laurea pl " +
+                "JOIN tesi t ON pl.studente_username = t.studente_username " +
+                "JOIN richiesta_tirocinio rt ON t.studente_username = rt.studente_username " +
+                "WHERE pl.seduta_codice = ? AND rt.docente_ssn = ? AND t.stato = 'ACCETTATO' AND rt.stato = 'ACCETTATO'";
         try (Connection conn = ConnessioneDatabase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, codiceSeduta);
@@ -52,6 +69,8 @@ public class SedutaPostgresDao implements SedutaDAO {
         return false;
     }
 
+    // (Gli altri metodi restituiscono semplicemente le liste di stringhe per le JTable, la logica è standard)
+
     @Override
     public List<String[]> getStudentiPerSedutaDB(String codiceSeduta) throws SQLException {
         List<String[]> risultati = new ArrayList<>();
@@ -61,12 +80,7 @@ public class SedutaPostgresDao implements SedutaDAO {
             pstmt.setString(1, codiceSeduta);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    risultati.add(new String[]{
-                            rs.getString("matricola"),
-                            rs.getString(COL_NOME),
-                            rs.getString(COL_COGNOME),
-                            rs.getString("titolo")
-                    });
+                    risultati.add(new String[]{ rs.getString("matricola"), rs.getString(COL_NOME), rs.getString(COL_COGNOME), rs.getString("titolo") });
                 }
             }
         }
@@ -81,12 +95,7 @@ public class SedutaPostgresDao implements SedutaDAO {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                risultati.add(new String[]{
-                        rs.getString("codice"),
-                        rs.getDate("data_seduta").toString(),
-                        rs.getString("ora"),
-                        rs.getString("luogo")
-                });
+                risultati.add(new String[]{ rs.getString("codice"), rs.getDate("data_seduta").toString(), rs.getString("ora"), rs.getString("luogo") });
             }
         }
         return risultati;
@@ -100,11 +109,7 @@ public class SedutaPostgresDao implements SedutaDAO {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                risultati.add(new String[]{
-                        rs.getString(COL_SSN),
-                        rs.getString(COL_NOME),
-                        rs.getString(COL_COGNOME)
-                });
+                risultati.add(new String[]{ rs.getString(COL_SSN), rs.getString(COL_NOME), rs.getString(COL_COGNOME) });
             }
         }
         return risultati;
@@ -119,11 +124,7 @@ public class SedutaPostgresDao implements SedutaDAO {
             pstmt.setString(1, codiceSeduta);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    risultati.add(new String[]{
-                            rs.getString(COL_SSN),
-                            rs.getString(COL_NOME),
-                            rs.getString(COL_COGNOME)
-                    });
+                    risultati.add(new String[]{ rs.getString(COL_SSN), rs.getString(COL_NOME), rs.getString(COL_COGNOME) });
                 }
             }
         }

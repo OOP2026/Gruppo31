@@ -3,10 +3,14 @@ package gui;
 import controller.Controller;
 import javax.swing.*;
 
+/**
+ * Schermata dedicata ai Docenti.
+ * Da qui i prof possono proporre tirocini (interni o esterni) e valutare sia
+ * le richieste di tirocinio degli studenti che le tesi finali caricate.
+ */
 public class DocenteFrame extends JFrame {
 
     private static final String ERRORE_DB_PREFIX = "Errore DB: ";
-
     private transient Controller controller;
     private JPanel panel1;
 
@@ -21,13 +25,19 @@ public class DocenteFrame extends JFrame {
     private JTextField txtIdTirocinioValutazione;
     private JButton btnApprovaRichiesta;
     private JTable tblRichiesteStudenti;
-
     private JTextField txtMatricolaTesi;
     private JButton btnApprovaTesi;
     private JTable tblTesiStudenti;
 
     private JButton btnHome;
 
+    /**
+     * Costruttore della plancia Docente.
+     * Associa le azioni ai pulsanti e gestisce l'attivazione/disattivazione
+     * dei campi per le aziende (se spunto la casella "esterno").
+     *
+     * @param controller Il Controller che gestisce i dati
+     */
     public DocenteFrame(Controller controller) {
         this.controller = controller;
         setContentPane(panel1);
@@ -47,6 +57,7 @@ public class DocenteFrame extends JFrame {
             });
         }
 
+        // Se spunto la checkbox "Tirocinio Esterno", sblocco i campi Azienda e Referente[cite: 541].
         if (chkTirocinioEsterno != null) {
             chkTirocinioEsterno.addActionListener(e -> {
                 boolean isEsterno = chkTirocinioEsterno.isSelected();
@@ -65,6 +76,10 @@ public class DocenteFrame extends JFrame {
         aggiornaTabellaTesi();
     }
 
+    /**
+     * Associa al bottone l'azione per inserire nel database l'argomento di tirocinio[cite: 540].
+     * Distingue automaticamente tra tirocinio interno o esterno [cite: 541] in base alla checkbox.
+     */
     private void inizializzaListenerAggiungiTirocinio() {
         btnAggiungiTirocinio.addActionListener(e -> {
             try {
@@ -98,6 +113,10 @@ public class DocenteFrame extends JFrame {
         });
     }
 
+    /**
+     * Associa l'azione al bottone di approvazione. Apre un popup che chiede
+     * al professore se vuole ACCETTARE o RIFIUTARE la richiesta del ragazzo[cite: 544].
+     */
     private void inizializzaListenerApprovaRichiesta() {
         btnApprovaRichiesta.addActionListener(e -> {
             String matricola = txtMatricolaRichiesta.getText();
@@ -119,8 +138,7 @@ public class DocenteFrame extends JFrame {
                     controller.docenteValutaRichiesta(matricola, idTirocinio, true);
                     JOptionPane.showMessageDialog(this, "Richiesta approvata!");
                     aggiornaTabellaRichieste();
-                    // SE ACCETTI IL RAGAZZO, IL DOCENTE POTRA' ORA VEDERNE LA TESI (se caricata), quindi aggiorniamo anche la seconda tabella
-                    aggiornaTabellaTesi();
+                    aggiornaTabellaTesi(); // Aggiorniamo anche le tesi perché magari ora si è sbloccato!
                 } else if (scelta == JOptionPane.NO_OPTION) {
                     controller.docenteValutaRichiesta(matricola, idTirocinio, false);
                     JOptionPane.showMessageDialog(this, "Richiesta rifiutata.");
@@ -134,6 +152,10 @@ public class DocenteFrame extends JFrame {
         });
     }
 
+    /**
+     * Come sopra, ma serve per valutare l'elaborato finale (tesi).
+     * Il professore può guardarla e approvarla (o rifiutarla)[cite: 549].
+     */
     private void inizializzaListenerApprovaTesi() {
         btnApprovaTesi.addActionListener(e -> {
             String matricolaStudente = txtMatricolaTesi.getText();
@@ -159,14 +181,15 @@ public class DocenteFrame extends JFrame {
         });
     }
 
+    /**
+     * Ripopola la tabella con le richieste in attesa mandate dagli studenti[cite: 544].
+     */
     private void aggiornaTabellaRichieste() {
         try {
             String[] colonne = {"Matricola", "Studente", "ID Tirocinio", "Argomento", "Stato"};
             javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(colonne, 0) {
                 @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
+                public boolean isCellEditable(int row, int column) { return false; }
             };
 
             for (String[] riga : controller.getRichiestePerDocente()) {
@@ -175,11 +198,7 @@ public class DocenteFrame extends JFrame {
 
             if (tblRichiesteStudenti != null) {
                 tblRichiesteStudenti.setModel(model);
-
-                for(java.awt.event.MouseListener ml : tblRichiesteStudenti.getMouseListeners()) {
-                    tblRichiesteStudenti.removeMouseListener(ml);
-                }
-
+                for(java.awt.event.MouseListener ml : tblRichiesteStudenti.getMouseListeners()) tblRichiesteStudenti.removeMouseListener(ml);
                 tblRichiesteStudenti.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -196,27 +215,23 @@ public class DocenteFrame extends JFrame {
         }
     }
 
+    /**
+     * Ripopola la tabella delle tesi caricate e visibili al docente.
+     */
     private void aggiornaTabellaTesi() {
         try {
             String[] colonne = {"Matricola", "Studente", "Titolo Tesi", "File PDF", "Stato"};
             javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(colonne, 0) {
                 @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
+                public boolean isCellEditable(int row, int column) { return false; }
             };
-
             for (String[] riga : controller.getTesiPerDocente()) {
                 model.addRow(riga);
             }
 
             if (tblTesiStudenti != null) {
                 tblTesiStudenti.setModel(model);
-
-                for(java.awt.event.MouseListener ml : tblTesiStudenti.getMouseListeners()) {
-                    tblTesiStudenti.removeMouseListener(ml);
-                }
-
+                for(java.awt.event.MouseListener ml : tblTesiStudenti.getMouseListeners()) tblTesiStudenti.removeMouseListener(ml);
                 tblTesiStudenti.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent e) {

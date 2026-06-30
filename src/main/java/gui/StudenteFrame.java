@@ -8,6 +8,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+/**
+ * La schermata principale (Plancia) che vede lo studente loggato.
+ * Permette di iscriversi a un tirocinio [cite: 543], vedere come procede la richiesta [cite: 546]
+ * e, a fine percorso, inviare il file della tesi [cite: 548] e prenotarsi per la laurea[cite: 553].
+ */
 public class StudenteFrame extends JFrame {
 
     private transient Controller controller;
@@ -28,6 +33,11 @@ public class StudenteFrame extends JFrame {
     private static final String TITOLO_ERRORE = "Errore";
     private static final String PREFISSO_ERRORE_DB = "Errore DB: ";
 
+    /**
+     * Costruttore della plancia Studente. Carica i dati delle tabelle appena si apre.
+     *
+     * @param controller Il controller per comunicare col DB.
+     */
     public StudenteFrame(Controller controller) {
         this.controller = controller;
         setContentPane(panel1);
@@ -36,16 +46,15 @@ public class StudenteFrame extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // FIX SONAR: Spacchettiamo il costruttore delegando la logica a metodi separati
         inizializzaAzioniBottoni();
-
         aggiornaTabellaTirocini();
         aggiornaTabellaStatoRichieste();
         aggiornaTabellaSedute();
     }
 
-    // --- METODI DI INIZIALIZZAZIONE ---
-
+    /**
+     * Inizializza i bottoni collegandoli alle funzioni giuste.
+     */
     private void inizializzaAzioniBottoni() {
         if (btnHome != null) {
             btnHome.addActionListener(e -> tornaAllaHome());
@@ -55,11 +64,18 @@ public class StudenteFrame extends JFrame {
         btnPrenotaSeduta.addActionListener(e -> gestisciPrenotazioneSeduta());
     }
 
+    /**
+     * Permette il logout riportando lo studente alla schermata principale di accesso.
+     */
     private void tornaAllaHome() {
         new LoginFrame(controller).setVisible(true);
         dispose();
     }
 
+    /**
+     * Lo studente preleva l'ID del tirocinio desiderato e l'SSN del professore
+     * scelto dalla tabella e invia la domanda[cite: 543].
+     */
     private void gestisciRichiestaTirocinio() {
         try {
             String ssnRelatore = txtSsnDocente.getText();
@@ -73,6 +89,8 @@ public class StudenteFrame extends JFrame {
             int idTirocinio = Integer.parseInt(idTirocinioStr);
             controller.studenteRichiediTirocinio(ssnRelatore, idTirocinio);
             JOptionPane.showMessageDialog(this, "Richiesta di tirocinio inviata con successo!");
+
+            // Aggiorniamo subito l'altra tabella per fargli vedere lo stato [cite: 546]
             aggiornaTabellaStatoRichieste();
 
         } catch (NumberFormatException ex) {
@@ -82,6 +100,10 @@ public class StudenteFrame extends JFrame {
         }
     }
 
+    /**
+     * Lo studente, se ha finito il tirocinio, carica il PDF (o percorso) della sua tesi[cite: 548].
+     * Il Controller dietro le quinte bloccherà tutto se il tirocinio non è approvato.
+     */
     private void gestisciCaricamentoTesi() {
         try {
             String titolo = txtTitoloTesi.getText();
@@ -94,12 +116,15 @@ public class StudenteFrame extends JFrame {
 
             controller.studenteCaricaTesi(titolo, percorso);
             JOptionPane.showMessageDialog(this, "Tesi caricata con successo! Ora seleziona una seduta e prenota.");
-
         } catch (SQLException | IllegalArgumentException ex) {
+            // Qui stamperà l'errore del Controller se la tesi è rifiutata o pendente
             JOptionPane.showMessageDialog(this, ex.getMessage(), TITOLO_ERRORE, JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    /**
+     * Lo studente sceglie in quale data (Seduta) vuole laurearsi e si prenota[cite: 553].
+     */
     private void gestisciPrenotazioneSeduta() {
         try {
             String codiceSeduta = txtCodiceSeduta.getText();
@@ -114,8 +139,12 @@ public class StudenteFrame extends JFrame {
         }
     }
 
-    // --- METODI DELLE TABELLE ---
-
+    /**
+     * Funzione helper per non far modificare le celle delle tabelle all'utente.
+     *
+     * @param colonne array dei nomi delle colonne
+     * @return il modello DefaultTableModel base
+     */
     private DefaultTableModel creaModelloTabella(String[] colonne) {
         return new DefaultTableModel(colonne, 0) {
             @Override
@@ -123,22 +152,28 @@ public class StudenteFrame extends JFrame {
         };
     }
 
+    /**
+     * Riempe la tabella con tutti i tirocini offerti dall'università[cite: 543].
+     */
     private void aggiornaTabellaTirocini() {
         try {
             String[] colonne = {"ID Tirocinio", "Argomento", "Tipologia", "SSN Docente", "Relatore"};
             DefaultTableModel model = creaModelloTabella(colonne);
 
             for (String[] riga : controller.getElencoTirociniDisponibili()) model.addRow(riga);
-
             if(tblTirocini != null) {
                 tblTirocini.setModel(model);
-                aggiungiListenerTabellaTirocini(); // Spacchettato per ridurre la complessità
+                aggiungiListenerTabellaTirocini();
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, PREFISSO_ERRORE_DB + ex.getMessage(), TITOLO_ERRORE, JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    /**
+     * Aggiunge l'evento di click sulla tabella tirocini per far prelevare automaticamente
+     * SSN docente e ID tirocinio senza farli digitare a mano.
+     */
     private void aggiungiListenerTabellaTirocini() {
         for(MouseListener ml : tblTirocini.getMouseListeners()) tblTirocini.removeMouseListener(ml);
         tblTirocini.addMouseListener(new MouseAdapter() {
@@ -153,6 +188,10 @@ public class StudenteFrame extends JFrame {
         });
     }
 
+    /**
+     * Riempe la tabella che mostra allo studente se la sua richiesta
+     * è stata ACCETTATA, RIFIUTATA o è IN_ATTESA[cite: 546].
+     */
     private void aggiornaTabellaStatoRichieste() {
         try {
             String[] colonne = {"Argomento", "Relatore", "Stato"};
@@ -164,6 +203,9 @@ public class StudenteFrame extends JFrame {
         }
     }
 
+    /**
+     * Riempe la tabella con tutte le prossime sedute di laurea a cui lo studente può iscriversi[cite: 553].
+     */
     private void aggiornaTabellaSedute() {
         try {
             String[] colonne = {"Codice Seduta", "Data", "Ora", "Luogo"};
@@ -171,13 +213,16 @@ public class StudenteFrame extends JFrame {
             for (String[] riga : controller.getElencoSeduteDisponibili()) model.addRow(riga);
             if(tblSedute != null) {
                 tblSedute.setModel(model);
-                aggiungiListenerTabellaSedute(); // Spacchettato per ridurre la complessità
+                aggiungiListenerTabellaSedute();
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, PREFISSO_ERRORE_DB + ex.getMessage(), TITOLO_ERRORE, JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    /**
+     * Evento al click sulla tabella sedute: mette il codice nel textfield automaticamente.
+     */
     private void aggiungiListenerTabellaSedute() {
         for(MouseListener ml : tblSedute.getMouseListeners()) tblSedute.removeMouseListener(ml);
         tblSedute.addMouseListener(new MouseAdapter() {

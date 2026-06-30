@@ -3,6 +3,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Interfaccia per gestire le proposte di tirocinio dei docenti e
+ * le relative richieste fatte dagli studenti.
+ */
 public interface TirocinioDAO {
     void aggiungiTirocinioDB(int id, String argomento, String ssnDocente) throws SQLException;
     void aggiungiTirocinioEsternoDB(int id, String argomento, String azienda, String referenteAziendale, String ssnDocente) throws SQLException;
